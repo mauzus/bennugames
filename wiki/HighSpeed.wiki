@@ -1,0 +1,16 @@
+#summary High Speed screenshots and info.
+
+*High Speed* is a war game with cars for 1 to 4 simultaneous players. It was originally made with DIV Games Studio 2 back in the year 2002, and was ported for the first time to a non-DOS language in 2009.
+
+It is a pretty shitty game, only uploaded for historical reasons.
+
+
+= Screenshots =
+
+[http://i44.tinypic.com/20h3vuv.png http://i39.tinypic.com/2cfytjo.png] [http://i40.tinypic.com/dnh5bl.png http://i44.tinypic.com/219877n.png] [http://i41.tinypic.com/34qr2p5.png http://i41.tinypic.com/258o17t.png] [http://i41.tinypic.com/25fukup.png http://i42.tinypic.com/zxqkq1.png]
+
+
+= Downloads =
+
+  * Binaries: [http://bennugames.googlecode.com/files/highspeed-v001-win32.7z highspeed-v001-win32.7z] (627 KB)
+  * Source: [http://bennugames.googlecode.com/files/highspeed-v001-src.7z highspeed-v001-src.7z] (158 KB)
