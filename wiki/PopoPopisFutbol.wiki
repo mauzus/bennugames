@@ -1,0 +1,17 @@
+#summary Popo Popi's Fútbol screenshots and info.
+#labels Featured
+
+*Popo Popi's Fútbol* is a football game for 2 players. It was originally made with DIV Games Studio 2 back in the year 2002, and was ported for the first time to a real non-DOS language in 2009.
+
+It is a pretty shitty game, only uploaded here for archiving purposes.
+
+
+= Screenshots =
+
+[http://i43.tinypic.com/i6ftd1.png http://i44.tinypic.com/abh0rl.png] [http://i44.tinypic.com/w8t1lf.png http://i39.tinypic.com/2cr3l8m.png] [http://i42.tinypic.com/2u90ear.png http://i43.tinypic.com/2092fjc.png] [http://i41.tinypic.com/21jcais.png http://i39.tinypic.com/21j1ugy.png]
+
+
+= Downloads =
+
+  * Binaries: [http://bennugames.googlecode.com/files/popopopi-v001-win32.7z popopopi-v001-win32.7z] (910 KB)
+  * Source: [http://bennugames.googlecode.com/files/popopopi-v001-src.7z popopopi-v001-src.7z] (441 KB)
