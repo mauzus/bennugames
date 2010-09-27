@@ -47,19 +47,9 @@ BEGIN
 	_key_init();
 	f_small = load_fnt("small.fnt");
 	f_big   = load_fnt("big.fnt");
-	g_player   = load_png("boat.png");
-	g_bomb     = load_png("bomb.png");
-	g_ball     = load_png("ball.png");
-	g_blank    = load_png("blank.png");
-	g_back     = load_png("back.png");
-	g_water    = load_png("water.png");
-	g_distance = load_png("distance.png");
-	g_time     = load_png("time.png");
-	g_splash   = load_png("splash.png");
-	point_set(0,g_splash,0,324,150);
 	level(1);
 
-//	write_var(f_big,10,10,0,fps);
+	write_var(f_big,10,10,0,fps);
 	LOOP
 		if (key(_esc)) exit(); end
 		if (key(_alt) && key(_f4)) exit(); end
@@ -75,6 +65,17 @@ PRIVATE
 	tiempo;
 	timer_tiempo = 0;
 BEGIN
+	g_player   = load_png("stage/" + which_level + "/boat.png");
+	g_bomb     = load_png("stage/" + which_level + "/bomb.png");
+	g_ball     = load_png("stage/" + which_level + "/ball.png");
+	g_back     = load_png("stage/" + which_level + "/back.png");
+	g_water    = load_png("stage/" + which_level + "/water.png");
+	g_splash   = load_png("stage/" + which_level + "/splash.png");
+	g_blank    = load_png("stage/blank.png");
+	g_distance = load_png("stage/distance.png");
+	g_time     = load_png("stage/time.png");
+	point_set(0,g_splash,0,324,150);
+
 	scroll_mechanics();
 	camera_id = scroll_camera();
 	scroll[0].camera = camera_id;
