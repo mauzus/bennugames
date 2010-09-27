@@ -45,11 +45,10 @@ BEGIN
 	set_mode (640,480,16);
 	set_fps  (30,0);
 	_key_init();
-	f_small = load_fnt("small.fnt");
-	f_big   = load_fnt("big.fnt");
-	level(1);
+	f_small = fnt_load("small.fnt");
+	f_big   = fnt_load("big.fnt");
+	level_start(1);
 
-	write_var(f_big,10,10,0,fps);
 	LOOP
 		if (key(_esc)) exit(); end
 		if (key(_alt) && key(_f4)) exit(); end
@@ -58,22 +57,22 @@ BEGIN
 END
 
 
-PROCESS level(which_level)
+PROCESS level_start(which_level)
 PRIVATE
 	player player_id;
 	distancia;
 	tiempo;
 	timer_tiempo = 0;
 BEGIN
-	g_player   = load_png("stage/" + which_level + "/boat.png");
-	g_bomb     = load_png("stage/" + which_level + "/bomb.png");
-	g_ball     = load_png("stage/" + which_level + "/ball.png");
-	g_back     = load_png("stage/" + which_level + "/back.png");
-	g_water    = load_png("stage/" + which_level + "/water.png");
-	g_splash   = load_png("stage/" + which_level + "/splash.png");
-	g_blank    = load_png("stage/blank.png");
-	g_distance = load_png("stage/distance.png");
-	g_time     = load_png("stage/time.png");
+	g_player   = png_load("stage/" + which_level + "/boat.png");
+	g_bomb     = png_load("stage/" + which_level + "/bomb.png");
+	g_ball     = png_load("stage/" + which_level + "/ball.png");
+	g_back     = png_load("stage/" + which_level + "/back.png");
+	g_water    = png_load("stage/" + which_level + "/water.png");
+	g_splash   = png_load("stage/" + which_level + "/splash.png");
+	g_blank    = png_load("stage/blank.png");
+	g_distance = png_load("stage/distance.png");
+	g_time     = png_load("stage/time.png");
 	point_set(0,g_splash,0,324,150);
 
 	scroll_mechanics();
@@ -91,6 +90,7 @@ BEGIN
 //	ball(300,50,5000);
 	ball(rand(0,300),rand(50,200),rand(5000,15000),rand(25,100));
 
+	write_var(f_big,10,10,0,fps);
 //	write_var(0,10,50,0,player_id.x);
 //	write_var(0,10,60,0,camera_id.x);
 
@@ -100,6 +100,8 @@ BEGIN
 	gui(g_distance,320,468);
 	write_var(f_small,122,457,1,distancia);
 
+	fade_on();
+
 	LOOP
 		timer_tiempo++;
 		if (timer_tiempo == 30)
@@ -107,12 +109,49 @@ BEGIN
 			timer_tiempo = 0;
 		end
 		distancia = 75 - ((camera_id.x*100) / 8192);
+		if (distancia <= 0)
+			break;
+		end
 
 		if (rand(0,1000) > 900)
 			ball(rand(100,300),rand(50,200),rand(5000,10000),rand(25,100));
 		end
 		frame;
 	END
+
+	fade_off();
+	for (x = 0; x < 30; x++)
+		frame;
+	end
+	level_stop();
+	level_start(3);
+END
+
+
+PROCESS level_stop()
+BEGIN
+	stop_scroll(0);
+	stop_scroll(1);
+	stop_scroll(2);
+	stop_scroll(3);
+	map_unload(0,g_player);
+	map_unload(0,g_bomb);
+	map_unload(0,g_ball);
+	map_unload(0,g_back);
+	map_unload(0,g_water);
+	map_unload(0,g_splash);
+	map_unload(0,g_blank);
+	map_unload(0,g_distance);
+	map_unload(0,g_time);
+	delete_text(ALL_TEXT);
+	signal(type gui, s_kill);
+	signal(type scroll_mechanics, s_kill);
+	signal(type scroll_camera, s_kill);
+	signal(type player, s_kill);
+	signal(type splash, s_kill);
+	signal(type reflejo, s_kill);
+	signal(type bomb, s_kill);
+	signal(type ball, s_kill);
 END
 
 
@@ -173,6 +212,7 @@ BEGIN
 	alpha = 0;
 	LOOP
 		x += 5;
+//		x += 75;
 		if (x > 8192-2048)
 			x = 8192-2048;
 		end
