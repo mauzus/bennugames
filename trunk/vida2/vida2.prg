@@ -118,7 +118,7 @@ BEGIN
 			break;
 		end
 
-		if (rand(0,1000) > 950)
+		if ((rand(0,1000) > 950) && (!exists(type ball)))
 			ball(rand(100,300),rand(50,200),rand(5000,10000),rand(25,100));
 		end
 		frame;
@@ -129,7 +129,7 @@ BEGIN
 		frame;
 	end
 	level_stop();
-	level_start(3);
+	level_start(which_level+1);
 END
 
 
