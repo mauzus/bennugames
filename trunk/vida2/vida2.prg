@@ -24,6 +24,10 @@ import "mod_wm";
 
 #include "key_event.lib"
 
+CONST
+	STATE_STORY   = 0;
+	STATE_PLAYING = 1;
+	STATE_WAITING = 2;
 
 GLOBAL
 	game_state;
@@ -106,6 +110,7 @@ BEGIN
 	write_var(f_small,122,457,1,distancia);
 
 	fade_on();
+	game_state = STATE_PLAYING;
 
 	LOOP
 		timer_tiempo++;
@@ -127,6 +132,10 @@ BEGIN
 		frame;
 	END
 
+	game_state = STATE_WAITING;
+	for (x = 0; x < 120; x++)
+		frame;
+	end
 	fade_off();
 	for (x = 0; x < 30; x++)
 		frame;
@@ -257,40 +266,60 @@ BEGIN
 	reflejo();
 //	write_var(0,10,50,0,max_speed_temp);
 	LOOP
-		// TODO: hacer marcador de energía sobre la cabeza de Marcos
-		if (speed == 0 && max_speed <= -300)
-			max_speed = 30; // debug
-		end
-		if (key( _right))
-			x += 12 + 3;
-		end
-		if (key( _left))
-			x -= 5 + 3;
-		end
-//		if (_key(_enter,_key_up))
+		if (game_state != STATE_WAITING)
+			if (speed == 0 && max_speed <= -300)
+				max_speed = 30;
+			end
+			if (key( _right))
+				x += 12 + 3;
+			end
+			if (key( _left))
+				x -= 5 + 3;
+			end
+	
+			if (max_speed > 0)
+				speed += acceleration;
+				splash();
+				graph = g_player_stand_row;
+			else
+				graph = g_player_stand;
+			end
+			max_speed -= acceleration;
+	
+			if (speed > 0)
+				speed--;
+			end
+			if (speed <= 0)
+				x -= 2;
+			end
+	
+			x += speed;
+			if (x > (camera_id.x+200))
+				x = camera_id.x+200;
+			end
+			if (x < (camera_id.x-200))
+				x = camera_id.x-200;
+			end
 
-		if (max_speed > 0)
-			speed += acceleration;
-			splash();
-			graph = g_player_stand_row;
-		else
+			// enemy hit
+			if (((collision(type bomb) || collision(type ball)) && invincible == 0))
+				camera_id.angle = 500;
+				invincible = 90;
+				signal(type ball,S_KILL);
+	//			play_wav(s_explosion,0,1);
+	//			mission();
+			end
+			if (invincible > 0)
+				flags = 4;
+				invincible--;
+			else
+				flags = 0;
+			end
+		else // STATE_WAITING
 			graph = g_player_stand;
-		end
-		max_speed -= acceleration;
-
-		if (speed > 0)
-			speed--;
-		end
-		if (speed <= 0)
-			x -= 2;
-		end
-
-		x += speed;
-		if (x > (camera_id.x+200))
-			x = camera_id.x+200;
-		end
-		if (x < (camera_id.x-200))
-			x = camera_id.x-200;
+			flags = 0;
+			invincible = 0;
+			x += 4;
 		end
 
 		// bamboleo
@@ -307,21 +336,6 @@ BEGIN
 		if (angle < -4000)
 			angle_direction = _ANGLE_RIGHT;
 			angle = -4000;
-		end
-
-		// enemy hit
-		if ((collision(type bomb) || collision(type ball)) && invincible == 0)
-			camera_id.angle = 500;
-			invincible = 90;
-			signal(type ball,S_KILL);
-//			play_wav(s_explosion,0,1);
-//			mission();
-		end
-		if (invincible > 0)
-			flags = 4;
-			invincible--;
-		else
-			flags = 0;
 		end
 		// if camera is going back to restart a life
 		if (camera_id.angle > 0)
