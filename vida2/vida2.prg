@@ -28,7 +28,7 @@ import "mod_wm";
 GLOBAL
 	camera_id;
 	f_small; f_big;
-	g_player_stand; g_player_stand_speed;
+	g_player_stand; g_player_stand_row;
 	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
 
 
@@ -66,7 +66,7 @@ PRIVATE
 	timer_tiempo = 0;
 BEGIN
 	g_player_stand       = png_load("stage/" + which_level + "/player_stand.png");
-	g_player_stand_speed = png_load("stage/" + which_level + "/player_stand_speed.png");
+	g_player_stand_row   = png_load("stage/" + which_level + "/player_stand_row.png");
 	g_bomb     = png_load("stage/" + which_level + "/bomb.png");
 	g_ball     = png_load("stage/" + which_level + "/ball.png");
 	g_back     = png_load("stage/" + which_level + "/back.png");
@@ -93,8 +93,8 @@ BEGIN
 	ball(rand(0,300),rand(50,200),rand(5000,15000),rand(25,100));
 
 	write_var(f_big,10,10,0,fps);
-	write_var(0,10,50,0,player_id.x);
-	write_var(0,10,60,0,camera_id.x);
+//	write_var(0,10,50,0,player_id.x);
+//	write_var(0,10,60,0,camera_id.x);
 
 	tiempo=99;
 	gui(g_time,320,16);
@@ -112,6 +112,9 @@ BEGIN
 		end
 		distancia = 75 - ((camera_id.x*100) / 8192);
 		if (distancia <= 0)
+			break;
+		end
+		if (_key(_f2,_key_down))
 			break;
 		end
 
@@ -137,7 +140,7 @@ BEGIN
 	stop_scroll(2);
 	stop_scroll(3);
 	map_unload(0,g_player_stand);
-	map_unload(0,g_player_stand_speed);
+	map_unload(0,g_player_stand_row);
 	map_unload(0,g_bomb);
 	map_unload(0,g_ball);
 	map_unload(0,g_back);
@@ -241,7 +244,6 @@ PRIVATE
 	angle_direction = 0;
 	_ANGLE_RIGHT = 0;
 	_ANGLE_LEFT = 1;
-	enemy_hit;
 	invincible;
 BEGIN
 	ctype = C_SCROLL;
@@ -266,7 +268,7 @@ BEGIN
 		if (max_speed > 0)
 			speed += acceleration;
 			splash();
-			graph = g_player_stand_speed;
+			graph = g_player_stand_row;
 		else
 			graph = g_player_stand;
 		end
@@ -304,11 +306,9 @@ BEGIN
 		end
 
 		// enemy hit
-		enemy_hit = collision(type bomb) || collision(type ball);
-		if (enemy_hit && invincible == 0)
+		if ((collision(type bomb) || collision(type ball)) && invincible == 0)
 			camera_id.angle = 500;
 			invincible = 90;
-			signal(enemy_hit,S_KILL);
 			signal(type ball,S_KILL);
 //			play_wav(s_explosion,0,1);
 //			mission();
