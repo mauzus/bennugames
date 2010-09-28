@@ -28,7 +28,8 @@ import "mod_wm";
 GLOBAL
 	camera_id;
 	f_small; f_big;
-	g_player; g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
+	g_player_stand; g_player_stand_speed;
+	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
 
 
 DECLARE PROCESS player()
@@ -64,7 +65,8 @@ PRIVATE
 	tiempo;
 	timer_tiempo = 0;
 BEGIN
-	g_player   = png_load("stage/" + which_level + "/boat.png");
+	g_player_stand       = png_load("stage/" + which_level + "/player_stand.png");
+	g_player_stand_speed = png_load("stage/" + which_level + "/player_stand_speed.png");
 	g_bomb     = png_load("stage/" + which_level + "/bomb.png");
 	g_ball     = png_load("stage/" + which_level + "/ball.png");
 	g_back     = png_load("stage/" + which_level + "/back.png");
@@ -91,8 +93,8 @@ BEGIN
 	ball(rand(0,300),rand(50,200),rand(5000,15000),rand(25,100));
 
 	write_var(f_big,10,10,0,fps);
-//	write_var(0,10,50,0,player_id.x);
-//	write_var(0,10,60,0,camera_id.x);
+	write_var(0,10,50,0,player_id.x);
+	write_var(0,10,60,0,camera_id.x);
 
 	tiempo=99;
 	gui(g_time,320,16);
@@ -113,7 +115,7 @@ BEGIN
 			break;
 		end
 
-		if (rand(0,1000) > 900)
+		if (rand(0,1000) > 950)
 			ball(rand(100,300),rand(50,200),rand(5000,10000),rand(25,100));
 		end
 		frame;
@@ -134,7 +136,8 @@ BEGIN
 	stop_scroll(1);
 	stop_scroll(2);
 	stop_scroll(3);
-	map_unload(0,g_player);
+	map_unload(0,g_player_stand);
+	map_unload(0,g_player_stand_speed);
 	map_unload(0,g_bomb);
 	map_unload(0,g_ball);
 	map_unload(0,g_back);
@@ -204,15 +207,25 @@ END
 
 
 PROCESS scroll_camera()
+PRIVATE
+	back_step = 50;
 BEGIN
 	ctype = C_SCROLL;
 	x = 20;
 	y = 380;
-	graph = g_player;
+	graph = g_player_stand;
 	alpha = 0;
 	LOOP
 		x += 5;
 //		x += 75;
+		if (angle > 0)
+			angle -= back_step;
+			x -= back_step;
+		end
+		if (x < 200)
+			x = 200;
+			angle = 0;
+		end
 		if (x > 8192-2048)
 			x = 8192-2048;
 		end
@@ -228,11 +241,13 @@ PRIVATE
 	angle_direction = 0;
 	_ANGLE_RIGHT = 0;
 	_ANGLE_LEFT = 1;
+	enemy_hit;
+	invincible;
 BEGIN
 	ctype = C_SCROLL;
 	x = 20;
 	y = 380;
-	graph = g_player;
+	graph = g_player_stand;
 	reflejo();
 //	write_var(0,10,50,0,max_speed_temp);
 	LOOP
@@ -251,6 +266,9 @@ BEGIN
 		if (max_speed > 0)
 			speed += acceleration;
 			splash();
+			graph = g_player_stand_speed;
+		else
+			graph = g_player_stand;
 		end
 		max_speed -= acceleration;
 
@@ -269,7 +287,7 @@ BEGIN
 			x = camera_id.x-200;
 		end
 
-		// balanceo
+		// bamboleo
 		if (angle_direction == _ANGLE_RIGHT)
 			angle += 200;
 		end
@@ -283,6 +301,30 @@ BEGIN
 		if (angle < -4000)
 			angle_direction = _ANGLE_RIGHT;
 			angle = -4000;
+		end
+
+		// enemy hit
+		enemy_hit = collision(type bomb) || collision(type ball);
+		if (enemy_hit && invincible == 0)
+			camera_id.angle = 500;
+			invincible = 90;
+			signal(enemy_hit,S_KILL);
+			signal(type ball,S_KILL);
+//			play_wav(s_explosion,0,1);
+//			mission();
+		end
+		if (invincible > 0)
+			flags = 4;
+			invincible--;
+		else
+			flags = 0;
+		end
+		// if camera is going back to restart a life
+		if (camera_id.angle > 0)
+			x = 0;
+			alpha = 0;
+		else
+			alpha = 256;
 		end
 
 		frame;
@@ -372,7 +414,7 @@ PRIVATE
 BEGIN
 	ctype = C_SCROLL;
 	graph = g_ball;
-	start_x = camera_id.x + 300;
+	start_x = camera_id.x + 300 + rand(0,300);
 	start_y = y;
 	x = start_x;
 	reflejo();
