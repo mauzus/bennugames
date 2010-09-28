@@ -26,6 +26,8 @@ import "mod_wm";
 
 
 GLOBAL
+	game_state;
+	game_stage = 1;
 	camera_id;
 	f_small; f_big;
 	g_player_stand; g_player_stand_row;
@@ -48,7 +50,8 @@ BEGIN
 	_key_init();
 	f_small = fnt_load("small.fnt");
 	f_big   = fnt_load("big.fnt");
-	level_start(1);
+	game_stage = 1;
+	level_start();
 
 	LOOP
 		if (key(_esc)) exit(); end
@@ -58,20 +61,20 @@ BEGIN
 END
 
 
-PROCESS level_start(which_level)
+PROCESS level_start()
 PRIVATE
 	player player_id;
 	distancia;
 	tiempo;
 	timer_tiempo = 0;
 BEGIN
-	g_player_stand       = png_load("stage/" + which_level + "/player_stand.png");
-	g_player_stand_row   = png_load("stage/" + which_level + "/player_stand_row.png");
-	g_bomb     = png_load("stage/" + which_level + "/bomb.png");
-	g_ball     = png_load("stage/" + which_level + "/ball.png");
-	g_back     = png_load("stage/" + which_level + "/back.png");
-	g_water    = png_load("stage/" + which_level + "/water.png");
-	g_splash   = png_load("stage/" + which_level + "/splash.png");
+	g_player_stand       = png_load("stage/" + game_stage + "/player_stand.png");
+	g_player_stand_row   = png_load("stage/" + game_stage + "/player_stand_row.png");
+	g_bomb     = png_load("stage/" + game_stage + "/bomb.png");
+	g_ball     = png_load("stage/" + game_stage + "/ball.png");
+	g_back     = png_load("stage/" + game_stage + "/back.png");
+	g_water    = png_load("stage/" + game_stage + "/water.png");
+	g_splash   = png_load("stage/" + game_stage + "/splash.png");
 	g_blank    = png_load("stage/blank.png");
 	g_distance = png_load("stage/distance.png");
 	g_time     = png_load("stage/time.png");
@@ -129,7 +132,8 @@ BEGIN
 		frame;
 	end
 	level_stop();
-	level_start(which_level+1);
+	game_stage++;
+	level_start();
 END
 
 
@@ -427,6 +431,9 @@ BEGIN
 		end
 		if (y > 470)
 			y = 470;
+		end
+		if (game_stage != 2)
+			angle = angulo;
 		end
 		angulo += angle_stepsize;
 		frame;
