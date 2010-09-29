@@ -60,6 +60,10 @@ BEGIN
 	LOOP
 		if (key(_esc)) exit(); end
 		if (key(_alt) && key(_f4)) exit(); end
+		if (key(_alt) && key(_enter))
+			if (full_screen==0) full_screen=1; set_mode(640,480,16);
+			else full_screen=0; set_mode(640,480,16); end
+		end
 		frame;
 	END
 END
