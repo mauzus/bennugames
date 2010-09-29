@@ -55,7 +55,7 @@ BEGIN
 	f_small = fnt_load("small.fnt");
 	f_big   = fnt_load("big.fnt");
 	game_stage = 1;
-	level_start();
+	story();
 
 	LOOP
 		if (key(_esc)) exit(); end
@@ -142,7 +142,7 @@ BEGIN
 	end
 	level_stop();
 	game_stage++;
-	level_start();
+	story();
 END
 
 
@@ -179,6 +179,44 @@ BEGIN
 	LOOP
 		frame;
 	END
+END
+
+
+PROCESS story()
+PRIVATE
+	g_gui; g_picture; g_story; s_story; w_story;
+BEGIN
+	g_gui     = png_load("stage/story.png");
+	g_picture = png_load("stage/" + game_stage + "/picture.png");
+	g_story   = png_load("stage/" + game_stage + "/story.png");
+	s_story   = load_song("stage/" + game_stage + "/story.ogg");
+
+	screen_put(0,g_picture);
+	xput(0,g_gui,320,480-34-68/2,0,100,B_NOCOLORKEY,0);
+	put(0,g_story,320,480-34-68/2+4);
+	drawing_alpha(128);
+	drawing_color(rgb(255,0,0));
+	draw_box(0,480-34,640,480);
+
+	fade_on();
+	w_story = play_song(s_story,0);
+	WHILE (is_playing_song())
+		frame;
+	END
+
+	fade_off();
+	FOR (x = 0; x < 30; x++)
+		frame;
+	END
+
+	map_unload(0,g_gui);
+	map_unload(0,g_picture);
+	map_unload(0,g_story);
+	unload_song(s_story);
+	delete_draw(0);
+	screen_clear();
+
+	level_start();
 END
 
 
