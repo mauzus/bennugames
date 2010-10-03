@@ -93,6 +93,20 @@ BEGIN
 	scroll[0].camera = camera_id;
 	camera_id.x = 200;
 
+	tiempo    = 99;
+	distancia = 75;
+	gui(g_time,320,16);
+	write_var(f_big,321,6,1,tiempo);
+	gui(g_distance,320,468);
+	write_var(f_small,122,457,1,distancia);
+
+	game_state = STATE_WAITING;
+	mission_brief();
+	fade_on();
+	while (game_state == STATE_WAITING)
+		frame;
+	end
+
 	player_id = player();
 	bomb(220);
 	bomb(1220);
@@ -107,13 +121,6 @@ BEGIN
 //	write_var(0,10,50,0,player_id.x);
 //	write_var(0,10,60,0,camera_id.x);
 
-	tiempo=99;
-	gui(g_time,320,16);
-	write_var(f_big,321,6,1,tiempo);
-	gui(g_distance,320,468);
-	write_var(f_small,122,457,1,distancia);
-
-	fade_on();
 	game_state = STATE_PLAYING;
 
 	LOOP
@@ -137,6 +144,7 @@ BEGIN
 	END
 
 	game_state = STATE_WAITING;
+	mission_accomplished();
 	for (x = 0; x < 120; x++)
 		frame;
 	end
@@ -183,6 +191,47 @@ BEGIN
 	LOOP
 		frame;
 	END
+END
+
+
+PROCESS mission_brief()
+PRIVATE
+	g_gui;
+BEGIN
+	g_gui = png_load("stage/" + game_stage + "/mission.png");
+	graph = g_gui;
+	flags = B_NOCOLORKEY;
+	x = 320;
+	y = 240;
+	FOR (z = 0; z < 30; z++)
+		frame;
+	END
+	WHILE (scan_code == 0)
+		frame;
+	END
+	graph = 0;
+	map_unload(0,g_gui);
+	FOR (x = 0; x < 15; x++)
+		frame;
+	END
+	game_state = STATE_PLAYING;
+END
+
+
+PROCESS mission_accomplished()
+PRIVATE
+	g_gui;
+BEGIN
+	g_gui = png_load("stage/mission_accomplished.png");
+	graph = g_gui;
+	flags = B_NOCOLORKEY;
+	x = 320;
+	y = 240;
+	FOR (z = 0; z < 120; z++)
+		frame;
+	END
+	graph = 0;
+	map_unload(0,g_gui);
 END
 
 
@@ -274,7 +323,9 @@ BEGIN
 	graph = g_player_stand;
 	alpha = 0;
 	LOOP
-		x += 5;
+		if (game_state != STATE_WAITING)
+			x += 5;
+		end
 //		x += 75;
 		if (angle > 0)
 			angle -= back_step;
