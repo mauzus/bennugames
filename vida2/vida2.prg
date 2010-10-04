@@ -75,6 +75,7 @@ PRIVATE
 	distancia;
 	tiempo;
 	timer_tiempo = 0;
+	ball_count = 0;
 BEGIN
 	g_player_stand       = png_load("stage/" + game_stage + "/player_stand.png");
 	g_player_stand_row   = png_load("stage/" + game_stage + "/player_stand_row.png");
@@ -108,7 +109,6 @@ BEGIN
 	end
 
 	player_id = player();
-	bomb(220);
 	bomb(1220);
 	bomb(2220);
 	bomb(3220);
@@ -137,9 +137,15 @@ BEGIN
 			break;
 		end
 
-		if ((rand(0,1000) > 950) && (!exists(type ball)))
+		// ball() calling
+		while(get_id(type ball))
+			ball_count++;
+		end
+		if ((rand(0,1000) > 975) && (ball_count < game_stage))
 			ball(rand(100,300),rand(50,200),rand(5000,10000),rand(25,100));
 		end
+		ball_count = 0;
+
 		frame;
 	END
 
@@ -396,7 +402,7 @@ BEGIN
 
 			// enemy hit
 			if (((collision(type bomb) || collision(type ball)) && invincible == 0))
-				camera_id.angle = 500;
+				camera_id.angle = 600;
 				invincible = 90;
 				signal(type ball,S_KILL);
 	//			play_wav(s_explosion,0,1);
@@ -499,7 +505,7 @@ BEGIN
 	reflejo();
 	LOOP
 		if (direction == _GOING_UP)
-			if (y > 150)
+			if (y > (150 - (4 - game_stage) * 5) )
 				y -= 5;
 			else
 				direction = _GOING_DOWN;
