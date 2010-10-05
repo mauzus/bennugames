@@ -31,7 +31,7 @@ CONST
 
 GLOBAL
 	game_state;
-	game_stage = 1;
+	game_stage;
 	camera_id;
 	f_small; f_big;
 	g_player_stand; g_player_stand_row;
@@ -52,6 +52,8 @@ BEGIN
 	set_mode (640,480,16);
 	set_fps  (30,0);
 	_key_init();
+	rand_seed(time());
+
 	f_small = fnt_load("small.fnt");
 	f_big   = fnt_load("big.fnt");
 	game_stage = 1;
@@ -109,13 +111,10 @@ BEGIN
 	end
 
 	player_id = player();
-	bomb(1220);
-	bomb(2220);
-	bomb(3220);
-	bomb(4220);
-	bomb(5220);
-//	ball(300,50,5000);
-	ball(rand(0,300),rand(50,200),rand(5000,15000),rand(25,100));
+	bomb(700);
+	for (x = 1; x <= 5; x++)
+		bomb((200 + (1000*x) + (100*rand(0,5) + 10*rand(0,10))));
+	end
 
 	write_var(f_big,10,10,0,fps);
 //	write_var(0,10,50,0,player_id.x);
@@ -141,8 +140,8 @@ BEGIN
 		while(get_id(type ball))
 			ball_count++;
 		end
-		if ((rand(0,1000) > 975) && (ball_count < game_stage))
-			ball(rand(100,300),rand(50,200),rand(5000,10000),rand(25,100));
+		if (ball_count < game_stage)
+			ball();
 		end
 		ball_count = 0;
 
@@ -258,7 +257,7 @@ BEGIN
 	draw_box(0,480-34,640,480);
 
 	fade_on();
-	w_story = play_song(s_story,0);
+//	w_story = play_song(s_story,0);
 	WHILE (is_playing_song())
 		frame;
 	END
@@ -406,7 +405,6 @@ BEGIN
 				invincible = 90;
 				signal(type ball,S_KILL);
 	//			play_wav(s_explosion,0,1);
-	//			mission();
 			end
 			if (invincible > 0)
 				flags = 4;
@@ -524,16 +522,25 @@ END
 
 
 
-PROCESS ball(y,length,angle_stepsize,size)
+PROCESS ball()
 PRIVATE
-	start_x; start_y;
+	start_x;
+	start_y;
+	length;
+	angle_stepsize;
 	angulo = 0;
 BEGIN
 	ctype = C_SCROLL;
 	graph = g_ball;
-	start_x = camera_id.x + 300 + rand(0,300);
-	start_y = y;
+	rand_seed(get_timer() + time() + rand(0,20000));
+	start_x = camera_id.x + 555 + rand(0,1000+100*game_stage);
+	start_y = rand(100,300);
 	x = start_x;
+	y = start_y;
+	size = rand(25,100);
+	z = 75 - size;
+	length = rand(100,150);
+	angle_stepsize = rand(7000,9000);
 	reflejo();
 
 	WHILE (x > camera_id.x-400)
