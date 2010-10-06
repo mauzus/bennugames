@@ -8,7 +8,7 @@ It is a pretty shitty game, only uploaded here for archiving purposes.
 
 = Screenshots =
 
-[http://i43.tinypic.com/i6ftd1.png http://i44.tinypic.com/abh0rl.png] [http://i44.tinypic.com/w8t1lf.png http://i39.tinypic.com/2cr3l8m.png] [http://i42.tinypic.com/2u90ear.png http://i43.tinypic.com/2092fjc.png] [http://i41.tinypic.com/21jcais.png http://i39.tinypic.com/21j1ugy.png]
+[http://bennugames.googlecode.com/svn/trunk/screenshots/PopoPopisFutbol/1.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/PopoPopisFutbol/2.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/PopoPopisFutbol/3.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/PopoPopisFutbol/4.png]
 
 
 = Downloads =
