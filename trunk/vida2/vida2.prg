@@ -28,13 +28,14 @@ CONST
 	STATE_STORY   = 0;
 	STATE_PLAYING = 1;
 	STATE_WAITING = 2;
+	DATA_FOLDER   = "data/";
 
 GLOBAL
 	game_state;
 	game_stage;
 	camera_id;
 	f_small; f_big;
-	g_player_stand; g_player_stand_row;
+	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
 	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
 
 
@@ -54,8 +55,11 @@ BEGIN
 	_key_init();
 	rand_seed(time());
 
-	f_small = fnt_load("small.fnt");
-	f_big   = fnt_load("big.fnt");
+	f_small               = fnt_load(DATA_FOLDER + "small.fnt");
+	f_big                 = fnt_load(DATA_FOLDER + "big.fnt");
+	g_player_hitbox_stand = png_load(DATA_FOLDER + "player_hitbox_stand.png");
+	g_player_hitbox_row   = png_load(DATA_FOLDER + "player_hitbox_row.png");
+
 	game_stage = 1;
 	story();
 
@@ -79,16 +83,16 @@ PRIVATE
 	timer_tiempo = 0;
 	ball_count = 0;
 BEGIN
-	g_player_stand       = png_load("stage/" + game_stage + "/player_stand.png");
-	g_player_stand_row   = png_load("stage/" + game_stage + "/player_stand_row.png");
-	g_bomb     = png_load("stage/" + game_stage + "/bomb.png");
-	g_ball     = png_load("stage/" + game_stage + "/ball.png");
-	g_back     = png_load("stage/" + game_stage + "/back.png");
-	g_water    = png_load("stage/" + game_stage + "/water.png");
-	g_splash   = png_load("stage/" + game_stage + "/splash.png");
-	g_blank    = png_load("stage/blank.png");
-	g_distance = png_load("stage/distance.png");
-	g_time     = png_load("stage/time.png");
+	g_player_stand = png_load(DATA_FOLDER + game_stage + "/player_stand.png");
+	g_player_row   = png_load(DATA_FOLDER + game_stage + "/player_row.png");
+	g_bomb         = png_load(DATA_FOLDER + game_stage + "/bomb.png");
+	g_ball         = png_load(DATA_FOLDER + game_stage + "/ball.png");
+	g_back         = png_load(DATA_FOLDER + game_stage + "/back.png");
+	g_water        = png_load(DATA_FOLDER + game_stage + "/water.png");
+	g_splash       = png_load(DATA_FOLDER + game_stage + "/splash.png");
+	g_blank        = png_load(DATA_FOLDER + "blank.png");
+	g_distance     = png_load(DATA_FOLDER + "distance.png");
+	g_time         = png_load(DATA_FOLDER + "time.png");
 	point_set(0,g_splash,0,324,150);
 
 	scroll_mechanics();
@@ -166,7 +170,7 @@ BEGIN
 	stop_scroll(2);
 	stop_scroll(3);
 	map_unload(0,g_player_stand);
-	map_unload(0,g_player_stand_row);
+	map_unload(0,g_player_row);
 	map_unload(0,g_bomb);
 	map_unload(0,g_ball);
 	map_unload(0,g_back);
@@ -199,7 +203,7 @@ PROCESS mission_brief()
 PRIVATE
 	g_gui;
 BEGIN
-	g_gui = png_load("stage/" + game_stage + "/mission.png");
+	g_gui = png_load(DATA_FOLDER + game_stage + "/mission.png");
 	graph = g_gui;
 	flags = B_NOCOLORKEY;
 	x = 320;
@@ -219,7 +223,7 @@ PROCESS mission_accomplished()
 PRIVATE
 	g_gui;
 BEGIN
-	g_gui = png_load("stage/mission_accomplished.png");
+	g_gui = png_load(DATA_FOLDER + "mission_accomplished.png");
 	graph = g_gui;
 	flags = B_NOCOLORKEY;
 	x = 320;
@@ -234,10 +238,10 @@ PROCESS story()
 PRIVATE
 	g_gui; g_picture; g_story; s_story; w_story;
 BEGIN
-	g_gui     = png_load("stage/story.png");
-	g_picture = png_load("stage/" + game_stage + "/picture.png");
-	g_story   = png_load("stage/" + game_stage + "/story.png");
-	s_story   = load_song("stage/" + game_stage + "/story.ogg");
+	g_gui     = png_load(DATA_FOLDER + "story.png");
+	g_picture = png_load(DATA_FOLDER + game_stage + "/picture.png");
+	g_story   = png_load(DATA_FOLDER + game_stage + "/story.png");
+	s_story   = load_song(DATA_FOLDER + game_stage + "/story.ogg");
 
 	screen_put(0,g_picture);
 	xput(0,g_gui,320,480-34-68/2,0,100,B_NOCOLORKEY,0);
@@ -348,8 +352,9 @@ BEGIN
 	ctype = C_SCROLL;
 	x = 20;
 	y = 380;
-	graph = g_player_stand;
-	reflejo();
+	graph = g_player_hitbox_stand;
+	alpha = 0;
+	player_graph();
 //	write_var(0,10,50,0,max_speed_temp);
 	LOOP
 		if (game_state != STATE_WAITING)
@@ -366,9 +371,9 @@ BEGIN
 			if (max_speed > 0)
 				speed += acceleration;
 				splash();
-				graph = g_player_stand_row;
+				graph = g_player_hitbox_row;
 			else
-				graph = g_player_stand;
+				graph = g_player_hitbox_stand;
 			end
 			max_speed -= acceleration;
 	
@@ -401,7 +406,7 @@ BEGIN
 				flags = 0;
 			end
 		else // STATE_WAITING
-			graph = g_player_stand;
+			graph = g_player_hitbox_stand;
 			flags = 0;
 			invincible = 0;
 			x += 4;
@@ -422,14 +427,36 @@ BEGIN
 			angle_direction = _ANGLE_RIGHT;
 			angle = -4000;
 		end
-		// if camera is going back to restart a life
-		if (camera_id.angle > 0)
-			x = 0;
-			alpha = 0;
+		frame;
+	END
+END
+
+
+PROCESS player_graph()
+BEGIN
+	ctype = C_SCROLL;
+	y = father.y;
+	graph = g_player_stand;
+	priority = father.priority - 1;
+	reflejo();
+	WHILE (exists(father))
+		x     = father.x;
+		angle = father.angle;
+		flags = father.flags;
+		if (father.graph == g_player_hitbox_stand)
+			graph = g_player_stand;
 		else
-			alpha = 256;
+			graph = g_player_row;
 		end
 
+		// if camera is going back to restart a life
+		if (camera_id.angle > 0)
+			father.x = 0;
+			x        = 0;
+			alpha    = 0;
+		else
+			alpha    = 256;
+		end
 		frame;
 	END
 END
