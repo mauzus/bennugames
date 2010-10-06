@@ -31,9 +31,11 @@ CONST
 	DATA_FOLDER   = "data/";
 
 GLOBAL
+	color_depth = 16;
 	game_state;
 	game_stage;
 	camera_id;
+	t_time; t_distance; t_fps = 0;
 	f_small; f_big;
 	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
 	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
@@ -50,7 +52,7 @@ END
 PROCESS Main()
 BEGIN
 	set_title("Marcos Lopez: Part II");
-	set_mode (640,480,16);
+	set_mode (640,480,color_depth);
 	set_fps  (30,0);
 	_key_init();
 	rand_seed(time());
@@ -66,9 +68,18 @@ BEGIN
 	LOOP
 		if (key(_esc)) exit(); end
 		if (key(_alt) && key(_f4)) exit(); end
-		if (key(_alt) && key(_enter))
-			if (full_screen==0) full_screen=1; set_mode(640,480,16);
-			else full_screen=0; set_mode(640,480,16); end
+
+		if (_key(_f1,_key_down))
+			if (t_fps != 0) delete_text(t_fps); t_fps = 0;
+			else t_fps = write_var(f_big,10,10,0,fps); end
+		end
+		if (_key(_f3,_key_down)) // doesn't work
+//			if (color_depth == 16) color_depth = 32; set_mode(640,480,color_depth);
+//			else color_depth = 16; set_mode(640,480,color_depth); end
+		end
+		if (_key(_f4,_key_down) || (key(_alt) && _key(_enter,_key_down)))
+			if (full_screen == 0) full_screen = 1; set_mode(640,480,color_depth);
+			else full_screen = 0; set_mode(640,480,color_depth); end
 		end
 		frame;
 	END
@@ -78,9 +89,9 @@ END
 PROCESS level_start()
 PRIVATE
 	player player_id;
-	distancia;
-	tiempo;
-	timer_tiempo = 0;
+	distance;
+	time;
+	time_counter = 0;
 	ball_count = 0;
 BEGIN
 	g_player_stand = png_load(DATA_FOLDER + game_stage + "/player_stand.png");
@@ -100,12 +111,12 @@ BEGIN
 	scroll[0].camera = camera_id;
 	camera_id.x = 200;
 
-	tiempo    = 99;
-	distancia = 75;
+	time     = 99;
+	distance = 75;
 	gui(g_time,320,16);
-	write_var(f_big,321,6,1,tiempo);
+	t_time = write_var(f_big,321,6,1,time);
 	gui(g_distance,320,468);
-	write_var(f_small,122,457,1,distancia);
+	t_distance = write_var(f_small,122,457,1,distance);
 
 	game_state = STATE_WAITING;
 	mission_brief();
@@ -120,20 +131,19 @@ BEGIN
 		bomb((200 + (1000*x) + (100*rand(0,5) + 10*rand(0,10))));
 	end
 
-	write_var(f_big,10,10,0,fps);
 //	write_var(0,10,50,0,player_id.x);
 //	write_var(0,10,60,0,camera_id.x);
 
 	game_state = STATE_PLAYING;
 
 	LOOP
-		timer_tiempo++;
-		if (timer_tiempo == 30)
-			tiempo--;
-			timer_tiempo = 0;
+		time_counter++;
+		if (time_counter == 30)
+			time--;
+			time_counter = 0;
 		end
-		distancia = 75 - ((camera_id.x*100) / 8192);
-		if (distancia <= 0)
+		distance = 75 - ((camera_id.x*100) / 8192);
+		if (distance <= 0)
 			break;
 		end
 		if (_key(_f2,_key_down))
@@ -179,7 +189,8 @@ BEGIN
 	map_unload(0,g_blank);
 	map_unload(0,g_distance);
 	map_unload(0,g_time);
-	delete_text(ALL_TEXT);
+	delete_text(t_time);
+	delete_text(t_distance);
 	signal(type gui, s_kill);
 	signal(type scroll_mechanics, s_kill);
 	signal(type scroll_camera, s_kill);
