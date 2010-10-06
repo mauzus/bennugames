@@ -150,13 +150,9 @@ BEGIN
 
 	game_state = STATE_WAITING;
 	mission_accomplished();
-	for (x = 0; x < 120; x++)
-		frame;
-	end
+	frame(100*30*4);
 	fade_off();
-	for (x = 0; x < 30; x++)
-		frame;
-	end
+	frame(100*30*1);
 	level_stop();
 	game_stage++;
 	story();
@@ -208,17 +204,13 @@ BEGIN
 	flags = B_NOCOLORKEY;
 	x = 320;
 	y = 240;
-	FOR (z = 0; z < 30; z++)
-		frame;
-	END
+	frame(100*30*1);
 	WHILE (scan_code == 0)
 		frame;
 	END
 	graph = 0;
 	map_unload(0,g_gui);
-	FOR (x = 0; x < 15; x++)
-		frame;
-	END
+	frame(100*30/2);
 	game_state = STATE_PLAYING;
 END
 
@@ -232,9 +224,7 @@ BEGIN
 	flags = B_NOCOLORKEY;
 	x = 320;
 	y = 240;
-	FOR (z = 0; z < 120; z++)
-		frame;
-	END
+	frame(100*30*4);
 	graph = 0;
 	map_unload(0,g_gui);
 END
@@ -263,9 +253,7 @@ BEGIN
 	END
 
 	fade_off();
-	FOR (x = 0; x < 30; x++)
-		frame;
-	END
+	frame(100*30*1);
 
 	map_unload(0,g_gui);
 	map_unload(0,g_picture);
