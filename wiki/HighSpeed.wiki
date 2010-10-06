@@ -8,7 +8,7 @@ It is a pretty shitty game, only uploaded here for archiving purposes.
 
 = Screenshots =
 
-[http://i44.tinypic.com/20h3vuv.png http://i39.tinypic.com/2cfytjo.png] [http://i40.tinypic.com/dnh5bl.png http://i44.tinypic.com/219877n.png] [http://i41.tinypic.com/34qr2p5.png http://i41.tinypic.com/258o17t.png] [http://i41.tinypic.com/25fukup.png http://i42.tinypic.com/zxqkq1.png]
+[http://bennugames.googlecode.com/svn/trunk/screenshots/HighSpeed/1.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/HighSpeed/2.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/HighSpeed/3.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/HighSpeed/4.png]
 
 
 = Downloads =
