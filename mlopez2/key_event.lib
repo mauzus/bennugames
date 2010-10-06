@@ -1,0 +1,44 @@
+#ifndef __KEY_EVENT_LIB
+#define __KEY_EVENT_LIB
+
+import "mod_key";
+import "mod_proc";
+
+global
+    _key_use = 0;
+    _key_state[127][1];
+end
+
+#define _key_pressed    0
+#define _key_down       1
+#define _key_up         2
+
+process _key_init()
+private
+    i;
+    pid;
+begin
+    signal_action( s_kill, s_ign );
+    signal( type _key_init, s_kill );
+    signal_action( s_kill, s_dfl );
+
+    priority = 10000;
+
+    loop
+        _key_use ^= 1;
+        for ( i = 0; i < 127; i++ )
+            _key_state[ i ][ _key_use ] = key( i );
+        end
+        frame;
+    end
+end
+
+function _key_exit()
+begin
+    signal( type _key_init, s_kill );
+end
+
+#define _key(k,ev) ((ev==_key_down)?(  _key_state[ k ][ _key_use ] && !_key_state[ k ][ _key_use ^ 1 ] ): \
+                    (ev==_key_up  )?( !_key_state[ k ][ _key_use ] &&  _key_state[ k ][ _key_use ^ 1 ] ): \
+                    ( _key_state[ k ][ _key_use ]))
+#endif
