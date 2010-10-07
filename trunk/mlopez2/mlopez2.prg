@@ -127,7 +127,7 @@ BEGIN
 		if (_key(_up,_key_down) && option == 2)
 			graph = g_menu_story;
 			option = 1;
-		end
+		end
 		if (_key(_enter,_key_down) && option == 1)
 			fade_off();
 			frame(100*30*1);
@@ -164,7 +164,7 @@ PROCESS level_start()
 PRIVATE
 	player player_id;
 	distance;
-	time;
+	time_left;
 	time_counter = 0;
 	ball_count = 0;
 BEGIN
@@ -185,10 +185,10 @@ BEGIN
 	scroll[0].camera = camera_id;
 	camera_id.x = 200;
 
-	time     = 99;
-	distance = 75;
+	time_left = 99;
+	distance  = 75;
 	object(g_time,320,16,0,0,255,C_SCREEN,0);
-	t_time = write_var(f_big,321,6,1,time);
+	t_time = write_var(f_big,321,6,1,time_left);
 	object(g_distance,320,468,0,0,255,C_SCREEN,0);
 	t_distance = write_var(f_small,122,457,1,distance);
 
@@ -221,7 +221,7 @@ BEGIN
 
 		time_counter++;
 		if (time_counter == 30)
-			time--;
+			time_left--;
 			time_counter = 0;
 		end
 		distance = 75 - ((camera_id.x*100) / 8192);
