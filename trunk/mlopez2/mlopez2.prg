@@ -62,11 +62,9 @@ BEGIN
 	g_player_hitbox_stand = png_load(DATA_FOLDER + "player_hitbox_stand.png");
 	g_player_hitbox_row   = png_load(DATA_FOLDER + "player_hitbox_row.png");
 
-	game_stage = 1;
-	story();
+	title();
 
 	LOOP
-		if (key(_esc)) exit(); end
 		if (key(_alt) && key(_f4)) exit(); end
 
 		if (_key(_f1,_key_down))
@@ -83,6 +81,82 @@ BEGIN
 		end
 		frame;
 	END
+END
+
+
+PROCESS title()
+PRIVATE
+	displace_y = -50;
+	g_clouds; g_frame; g_marcos; g_moon; g_stars; g_wife;
+	g_menu_story; g_menu_exit;
+	option     = 1;
+BEGIN
+	color_depth = 32;
+	set_mode(640,480,color_depth);
+	frame(100*30*1);
+
+	g_clouds = png_load(DATA_FOLDER + "title/clouds.png");
+	g_frame  = png_load(DATA_FOLDER + "title/frame.png");
+	g_marcos = png_load(DATA_FOLDER + "title/marcos.png");
+	g_moon   = png_load(DATA_FOLDER + "title/moon.png");
+	g_stars  = png_load(DATA_FOLDER + "title/stars.png");
+	g_wife   = png_load(DATA_FOLDER + "title/wife.png");
+	g_menu_story = png_load(DATA_FOLDER + "title/menu_story.png");
+	g_menu_exit  = png_load(DATA_FOLDER + "title/menu_exit.png");
+
+	region_define(1,320-612/2,240-346/2+displace_y,612/2,346);
+	start_scroll(0,0,g_clouds,g_stars,1,5);
+	scroll.flags1 = 4;
+
+	object(g_moon,   320,  40,              0, 0, 200, C_SCROLL, 1);
+	object(g_wife,   320, 240+displace_y,  -9, 4,  75, C_SCREEN, 0);
+	object(g_marcos, 320, 240+displace_y, -10, 0, 255, C_SCREEN, 0);
+	object(g_frame,  320, 240+displace_y, -11, 0, 255, C_SCREEN, 0);
+
+	x     = 554;
+	y     = 403;
+	graph = g_menu_story;
+
+	fade_on();
+	WHILE (1)
+		scroll.x0 += 1;
+		if (_key(_down,_key_down) && option == 1)
+			graph = g_menu_exit;
+			option = 2;
+		end
+		if (_key(_up,_key_down) && option == 2)
+			graph = g_menu_story;
+			option = 1;
+		end
+		if (_key(_enter,_key_down) && option == 1)
+			fade_off();
+			frame(100*30*1);
+			break;
+		end
+		if ((_key(_enter,_key_down) && option == 2) || (_key(_esc,_key_down)))
+			fade_off();
+			frame(100*30/2);
+			exit();
+		end
+		frame;
+	END
+
+	stop_scroll(0);
+	map_unload(0,g_clouds);
+	map_unload(0,g_frame);
+	map_unload(0,g_marcos);
+	map_unload(0,g_moon);
+	map_unload(0,g_stars);
+	map_unload(0,g_wife);
+	map_unload(0,g_menu_story);
+	map_unload(0,g_menu_exit);
+	signal(type object, s_kill);
+
+	color_depth = 16;
+	set_mode(640,480,color_depth);
+
+	game_stage = 1;
+	story();
 END
 
 
@@ -113,9 +187,9 @@ BEGIN
 
 	time     = 99;
 	distance = 75;
-	gui(g_time,320,16);
+	object(g_time,320,16,0,0,255,C_SCREEN,0);
 	t_time = write_var(f_big,321,6,1,time);
-	gui(g_distance,320,468);
+	object(g_distance,320,468,0,0,255,C_SCREEN,0);
 	t_distance = write_var(f_small,122,457,1,distance);
 
 	game_state = STATE_WAITING;
@@ -137,6 +211,14 @@ BEGIN
 	game_state = STATE_PLAYING;
 
 	LOOP
+		if (_key(_esc,_key_down))
+			fade_off();
+			frame(100*30*1);
+			level_stop();
+			title();
+			signal(id, s_kill);
+		end
+
 		time_counter++;
 		if (time_counter == 30)
 			time--;
@@ -191,18 +273,18 @@ BEGIN
 	map_unload(0,g_time);
 	delete_text(t_time);
 	delete_text(t_distance);
-	signal(type gui, s_kill);
+	signal(type ball, s_kill);
+	signal(type bomb, s_kill);
+	signal(type player, s_kill);
+	signal(type object, s_kill);
 	signal(type scroll_mechanics, s_kill);
 	signal(type scroll_camera, s_kill);
-	signal(type player, s_kill);
 	signal(type splash, s_kill);
 	signal(type reflejo, s_kill);
-	signal(type bomb, s_kill);
-	signal(type ball, s_kill);
 END
 
 
-PROCESS gui(graph,x,y)
+PROCESS object(graph,x,y,z,flags,alpha,ctype,region)
 BEGIN
 	LOOP
 		frame;
@@ -252,7 +334,7 @@ BEGIN
 	g_gui     = png_load(DATA_FOLDER + "story.png");
 	g_picture = png_load(DATA_FOLDER + game_stage + "/picture.png");
 	g_story   = png_load(DATA_FOLDER + game_stage + "/story.png");
-	s_story   = load_song(DATA_FOLDER + game_stage + "/story.ogg");
+//	s_story   = load_song(DATA_FOLDER + game_stage + "/story.ogg");
 
 	screen_put(0,g_picture);
 	xput(0,g_gui,320,480-34-68/2,0,100,B_NOCOLORKEY,0);
