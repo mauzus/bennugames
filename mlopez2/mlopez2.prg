@@ -57,6 +57,13 @@ BEGIN
 	_key_init();
 	rand_seed(time());
 
+	// splash screens
+	for (x = 1; x <= 2; x++)
+		z = png_load(DATA_FOLDER + "title/pre_title_" + x + ".png"); screen_put(0,z);
+		fade_on(); frame(100*30*2); fade_off(); frame(100*30*1);
+		screen_clear(); map_unload(0,z);
+	end
+
 	f_small               = fnt_load(DATA_FOLDER + "small.fnt");
 	f_big                 = fnt_load(DATA_FOLDER + "big.fnt");
 	g_player_hitbox_stand = png_load(DATA_FOLDER + "player_hitbox_stand.png");
@@ -93,7 +100,6 @@ PRIVATE
 BEGIN
 	color_depth = 32;
 	set_mode(640,480,color_depth);
-	frame(100*30*1);
 
 	g_clouds = png_load(DATA_FOLDER + "title/clouds.png");
 	g_frame  = png_load(DATA_FOLDER + "title/frame.png");
@@ -106,6 +112,7 @@ BEGIN
 
 	region_define(1,320-612/2,240-346/2+displace_y,612/2,346);
 	start_scroll(9,0,g_clouds,g_stars,1,5); // using scroll 9 to work around a BennuGD bug
+	scroll[9].x0     = 0;
 	scroll[9].flags1 = 4;
 
 	object(g_moon,   400,  60,              0, 0, 200, C_SCROLL, 1);
