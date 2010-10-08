@@ -105,10 +105,10 @@ BEGIN
 	g_menu_exit  = png_load(DATA_FOLDER + "title/menu_exit.png");
 
 	region_define(1,320-612/2,240-346/2+displace_y,612/2,346);
-	start_scroll(0,0,g_clouds,g_stars,1,5);
-	scroll.flags1 = 4;
+	start_scroll(9,0,g_clouds,g_stars,1,5); // using scroll 9 to work around a BennuGD bug
+	scroll[9].flags1 = 4;
 
-	object(g_moon,   320,  40,              0, 0, 200, C_SCROLL, 1);
+	object(g_moon,   400,  60,              0, 0, 200, C_SCROLL, 1);
 	object(g_wife,   320, 240+displace_y,  -9, 4,  75, C_SCREEN, 0);
 	object(g_marcos, 320, 240+displace_y, -10, 0, 255, C_SCREEN, 0);
 	object(g_frame,  320, 240+displace_y, -11, 0, 255, C_SCREEN, 0);
@@ -119,7 +119,7 @@ BEGIN
 
 	fade_on();
 	WHILE (1)
-		scroll.x0 += 1;
+		scroll[9].x0 += 1;
 		if (_key(_down,_key_down) && option == 1)
 			graph = g_menu_exit;
 			option = 2;
@@ -141,7 +141,7 @@ BEGIN
 		frame;
 	END
 
-	stop_scroll(0);
+	stop_scroll(9);
 	map_unload(0,g_clouds);
 	map_unload(0,g_frame);
 	map_unload(0,g_marcos);
