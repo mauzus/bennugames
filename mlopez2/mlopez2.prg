@@ -60,7 +60,7 @@ BEGIN
 	// splash screens
 	for (x = 1; x <= 2; x++)
 		z = png_load(DATA_FOLDER + "title/pre_title_" + x + ".png"); screen_put(0,z);
-		fade_on(); frame(100*30*2); fade_off(); frame(100*30*1);
+		fade_on(); frame(100*30*3); fade_off(); frame(100*30*1);
 		screen_clear(); map_unload(0,z);
 	end
 
@@ -115,7 +115,7 @@ BEGIN
 	scroll[9].x0     = 0;
 	scroll[9].flags1 = 4;
 
-	object(g_moon,   400,  60,              0, 0, 200, C_SCROLL, 1);
+	object(g_moon,   370,  60,              0, 0, 200, C_SCROLL, 1);
 	object(g_wife,   320, 240+displace_y,  -9, 4,  75, C_SCREEN, 0);
 	object(g_marcos, 320, 240+displace_y, -10, 0, 255, C_SCREEN, 0);
 	object(g_frame,  320, 240+displace_y, -11, 0, 255, C_SCREEN, 0);
@@ -225,7 +225,6 @@ BEGIN
 			title();
 			signal(id, s_kill);
 		end
-
 		time_counter++;
 		if (time_counter == 30)
 			time_left--;
@@ -248,6 +247,25 @@ BEGIN
 		end
 		ball_count = 0;
 
+		// game over
+		if (time_left <= 0)
+			fade_off();
+			frame(100*30*1);
+			level_stop();
+			z = png_load(DATA_FOLDER + "title/game_over.png");
+			screen_put(0,z);
+			fade_on();
+			frame(100*30*1);
+			while (scan_code == 0)
+				frame;
+			end
+			fade_off();
+			frame(100*30*1);
+			screen_clear();
+			map_unload(0,z);
+			title();
+			signal(id, s_kill);
+		end
 		frame;
 	END
 
