@@ -276,7 +276,11 @@ BEGIN
 	frame(100*30*1);
 	level_stop();
 	game_stage++;
-	story();
+	if (game_stage == 5)
+		ending();
+	else
+		story();
+	end
 END
 
 
@@ -356,10 +360,10 @@ PROCESS story()
 PRIVATE
 	g_gui; g_picture; g_story; s_story; w_story;
 BEGIN
-	g_gui     = png_load(DATA_FOLDER + "story.png");
-	g_picture = png_load(DATA_FOLDER + game_stage + "/picture.png");
-	g_story   = png_load(DATA_FOLDER + game_stage + "/story.png");
-//	s_story   = load_song(DATA_FOLDER + game_stage + "/story.ogg");
+	g_gui     = png_load (DATA_FOLDER + "story.png");
+	g_picture = png_load (DATA_FOLDER + game_stage + "/picture.png");
+	g_story   = png_load (DATA_FOLDER + game_stage + "/story.png");
+	s_story   = load_song(DATA_FOLDER + game_stage + "/story.ogg");
 
 	screen_put(0,g_picture);
 	xput(0,g_gui,320,480-34-68/2,0,100,B_NOCOLORKEY,0);
@@ -369,7 +373,7 @@ BEGIN
 	draw_box(0,480-34,640,480);
 
 	fade_on();
-//	w_story = play_song(s_story,0);
+	w_story = play_song(s_story,0);
 	WHILE (is_playing_song())
 		frame;
 	END
@@ -385,6 +389,81 @@ BEGIN
 	screen_clear();
 
 	level_start();
+END
+
+
+PROCESS ending()
+PRIVATE
+	g_gui; g_wife; g_marcos; g_story; s_story; w_story;
+BEGIN
+	set_fps(60,0);
+
+	for (z = 1; z <= 4; z++)
+		g_gui     = png_load (DATA_FOLDER + "ending.png");
+		g_wife    = png_load (DATA_FOLDER + "ending/wife.png");
+		g_marcos  = png_load (DATA_FOLDER + "ending/marcos.png");
+		g_story   = png_load (DATA_FOLDER + "ending/story_" + z + ".png");
+		s_story   = load_song(DATA_FOLDER + "ending/story_" + z + ".ogg");
+
+		if (z == 1 || z == 3)
+			screen_put(0,g_wife);
+		else
+			screen_put(0,g_marcos);
+		end
+
+		xput(0,g_gui,320,480-34-68/2,0,100,B_NOCOLORKEY,0);
+		drawing_alpha(128);
+		drawing_color(rgb(255,0,0));
+		draw_box(0,480-34,640,480);
+
+		graph = g_story;
+		x = 320+graphic_info(0,g_story,G_X_CENTER);
+		y = 480-34-68/2+4;
+
+		fade_on();
+		w_story = play_song(s_story,0);
+		WHILE (x > -graphic_info(0,g_story,G_X_CENTER))
+			x -= 3;
+			frame;
+		END
+
+		frame(100*30*1);
+
+		map_unload(0,g_gui);
+		map_unload(0,g_wife);
+		map_unload(0,g_marcos);
+		map_unload(0,g_story);
+		unload_song(s_story);
+		delete_draw(0);
+		screen_clear();
+	end
+
+	set_fps(30,0);
+
+	for (z = 1; z <= 3; z++)
+		g_gui = png_load (DATA_FOLDER + "ending/the_end_" + z + ".png");
+		graph = g_gui;
+		x = 320;
+		if (z == 1)
+			y = 480+45;
+		else
+			y = 480+240;
+		end
+		fade_on();
+		WHILE (y > 240)
+			y -= 1;
+			frame;
+		END
+		if (z == 1)
+			frame(100*30*1);
+		else
+			frame(100*30*5);
+		end
+		fade_off();
+		frame(100*30*1);
+	end
+
+	title();
 END
 
 
