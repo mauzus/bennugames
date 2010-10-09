@@ -39,6 +39,7 @@ GLOBAL
 	f_small; f_big;
 	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
 	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
+	s_title; w_title; load_title_music = 0;
 
 
 DECLARE PROCESS player()
@@ -56,6 +57,8 @@ BEGIN
 	set_fps  (30,0);
 	_key_init();
 	rand_seed(time());
+	s_title = load_song(DATA_FOLDER + "title/music.xm");
+	w_title = play_song(s_title,-1);
 
 	// splash screens
 	for (x = 1; x <= 2; x++)
@@ -91,6 +94,17 @@ BEGIN
 END
 
 
+PROCESS fade_song()
+BEGIN
+	if (is_playing_song())
+		for (x = 0; x <= 30; x++)
+			set_song_volume(128-x*4);
+			frame;
+		end
+	end
+END
+
+
 PROCESS title()
 PRIVATE
 	displace_y = -50;
@@ -100,6 +114,13 @@ PRIVATE
 BEGIN
 	color_depth = 32;
 	set_mode(640,480,color_depth);
+	set_song_volume(128);
+
+	if (load_title_music == 1)
+		s_title = load_song(DATA_FOLDER + "title/music.xm");
+		w_title = play_song(s_title,-1);
+	end
+	load_title_music = 1;
 
 	g_clouds = png_load(DATA_FOLDER + "title/clouds.png");
 	g_frame  = png_load(DATA_FOLDER + "title/frame.png");
@@ -137,11 +158,13 @@ BEGIN
 		end
 		if (_key(_enter,_key_down) && option == 1)
 			fade_off();
+			fade_song();
 			frame(100*30*1);
 			break;
 		end
 		if ((_key(_enter,_key_down) && option == 2) || (_key(_esc,_key_down)))
 			fade_off();
+			fade_song();
 			frame(100*30/2);
 			exit();
 		end
@@ -158,6 +181,8 @@ BEGIN
 	map_unload(0,g_menu_story);
 	map_unload(0,g_menu_exit);
 	signal(type object, s_kill);
+	stop_song();
+	unload_song(s_title);
 
 	color_depth = 16;
 	set_mode(640,480,color_depth);
@@ -174,7 +199,9 @@ PRIVATE
 	time_left;
 	time_counter = 0;
 	ball_count = 0;
+	s_music; w_music;
 BEGIN
+	s_music        = load_song(DATA_FOLDER + game_stage + "/music.xm");
 	g_player_stand = png_load(DATA_FOLDER + game_stage + "/player_stand.png");
 	g_player_row   = png_load(DATA_FOLDER + game_stage + "/player_row.png");
 	g_bomb         = png_load(DATA_FOLDER + game_stage + "/bomb.png");
@@ -216,6 +243,8 @@ BEGIN
 //	write_var(0,10,60,0,camera_id.x);
 
 	game_state = STATE_PLAYING;
+	set_song_volume(128);
+	w_music = play_song(s_music,-1);
 
 	LOOP
 		if (_key(_esc,_key_down))
@@ -273,8 +302,11 @@ BEGIN
 	mission_accomplished();
 	frame(100*30*4);
 	fade_off();
+	fade_song();
 	frame(100*30*1);
 	level_stop();
+	stop_song();
+	unload_song(s_title);
 	game_stage++;
 	if (game_stage == 5)
 		ending();
@@ -373,6 +405,7 @@ BEGIN
 	draw_box(0,480-34,640,480);
 
 	fade_on();
+	set_song_volume(128);
 	w_story = play_song(s_story,0);
 	WHILE (is_playing_song())
 		frame;
@@ -384,6 +417,7 @@ BEGIN
 	map_unload(0,g_gui);
 	map_unload(0,g_picture);
 	map_unload(0,g_story);
+	stop_song();
 	unload_song(s_story);
 	delete_draw(0);
 	screen_clear();
@@ -394,16 +428,24 @@ END
 
 PROCESS ending()
 PRIVATE
-	g_gui; g_wife; g_marcos; g_story; s_story; w_story;
+	g_gui; g_wife; g_marcos; g_story;
+	s_story; w_story;
+	s_ending; w_ending;
+	song_volume = 64;
 BEGIN
 	set_fps(60,0);
+	fade_on();
+	set_song_volume(song_volume);
+
+	s_ending = load_song(DATA_FOLDER + "ending/music.xm");
+	w_ending = play_song(s_ending,0);
 
 	for (z = 1; z <= 4; z++)
-		g_gui     = png_load (DATA_FOLDER + "ending.png");
-		g_wife    = png_load (DATA_FOLDER + "ending/wife.png");
-		g_marcos  = png_load (DATA_FOLDER + "ending/marcos.png");
-		g_story   = png_load (DATA_FOLDER + "ending/story_" + z + ".png");
-		s_story   = load_song(DATA_FOLDER + "ending/story_" + z + ".ogg");
+		g_gui     = png_load(DATA_FOLDER + "ending.png");
+		g_wife    = png_load(DATA_FOLDER + "ending/wife.png");
+		g_marcos  = png_load(DATA_FOLDER + "ending/marcos.png");
+		g_story   = png_load(DATA_FOLDER + "ending/story_" + z + ".png");
+		s_story   = load_wav(DATA_FOLDER + "ending/story_" + z + ".ogg");
 
 		if (z == 1 || z == 3)
 			screen_put(0,g_wife);
@@ -420,10 +462,12 @@ BEGIN
 		x = 320+graphic_info(0,g_story,G_X_CENTER);
 		y = 480-34-68/2+4;
 
-		fade_on();
-		w_story = play_song(s_story,0);
+		w_story = play_wav(s_story,0);
 		WHILE (x > -graphic_info(0,g_story,G_X_CENTER))
 			x -= 3;
+			frame;
+		END
+		WHILE (is_playing_wav(w_story)) // just in case the wav is still playing before we unload it
 			frame;
 		END
 
@@ -433,7 +477,8 @@ BEGIN
 		map_unload(0,g_wife);
 		map_unload(0,g_marcos);
 		map_unload(0,g_story);
-		unload_song(s_story);
+		stop_wav(w_story);
+		unload_wav(s_story);
 		delete_draw(0);
 		screen_clear();
 	end
@@ -449,20 +494,45 @@ BEGIN
 		else
 			y = 480+240;
 		end
-		fade_on();
 		WHILE (y > 240)
-			y -= 1;
+			if (song_volume != 128)
+				song_volume++;
+				set_song_volume(song_volume);
+			end
+			if (z == 1)
+				y -= 2;
+			else
+				y -= 1;
+			end
 			frame;
 		END
 		if (z == 1)
-			frame(100*30*1);
+			set_song_volume(128);
+			frame(100*30*3);
 		else
 			frame(100*30*5);
 		end
-		fade_off();
 		frame(100*30*1);
+		graph = 0;
+		map_unload(0,g_gui);
 	end
 
+	fade_off();
+	frame(100*30*1);
+	graph = 0;
+	z = write(0,640-5,480-5,8,"Press Esc to return to the title screen...");
+	fade_on();
+	frame(100*30*1);
+	WHILE (!_key(_esc,_key_down))
+		frame;
+	END
+	fade_off();
+	fade_song();
+	frame(100*30*2);
+	delete_text(z);
+
+	stop_song();
+	unload_song(s_ending);
 	title();
 END
 
@@ -731,7 +801,6 @@ BEGIN
 		frame;
 	END
 END
-
 
 
 PROCESS ball()
