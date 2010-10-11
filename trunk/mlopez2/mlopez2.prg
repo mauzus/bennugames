@@ -58,7 +58,9 @@ BEGIN
 	_key_init();
 	rand_seed(time());
 	s_title = load_song(DATA_FOLDER + "title/music.xm");
-	w_title = play_song(s_title,-1);
+	if (s_title)
+		w_title = play_song(s_title,-1);
+	end
 
 	// splash screens
 	for (x = 1; x <= 2; x++)
@@ -118,7 +120,9 @@ BEGIN
 
 	if (load_title_music == 1)
 		s_title = load_song(DATA_FOLDER + "title/music.xm");
-		w_title = play_song(s_title,-1);
+		if (s_title)
+			w_title = play_song(s_title,-1);
+		end
 	end
 	load_title_music = 1;
 
@@ -182,7 +186,10 @@ BEGIN
 	map_unload(0,g_menu_exit);
 	signal(type object, s_kill);
 	stop_song();
-	unload_song(s_title);
+	if (s_title)
+		unload_song(s_title);
+		s_title = NULL;
+	end
 
 	color_depth = 16;
 	set_mode(640,480,color_depth);
@@ -244,7 +251,9 @@ BEGIN
 
 	game_state = STATE_PLAYING;
 	set_song_volume(128);
-	w_music = play_song(s_music,-1);
+	if (s_music)
+		w_music = play_song(s_music,-1);
+	end
 
 	LOOP
 		if (_key(_esc,_key_down))
@@ -306,7 +315,12 @@ BEGIN
 	frame(100*30*1);
 	level_stop();
 	stop_song();
-	unload_song(s_title);
+	if (s_title)
+		unload_song(s_title);
+		s_title = NULL;
+	end
+	frame(100*30*1);
+
 	game_stage++;
 	if (game_stage == 5)
 		ending();
@@ -406,7 +420,9 @@ BEGIN
 
 	fade_on();
 	set_song_volume(128);
-	w_story = play_song(s_story,0);
+	if (s_story)
+		w_story = play_song(s_story,0);
+	end
 	WHILE (is_playing_song())
 		frame;
 	END
@@ -418,7 +434,10 @@ BEGIN
 	map_unload(0,g_picture);
 	map_unload(0,g_story);
 	stop_song();
-	unload_song(s_story);
+	if (s_story)
+		unload_song(s_story);
+		s_story = NULL;
+	end
 	delete_draw(0);
 	screen_clear();
 
@@ -438,7 +457,9 @@ BEGIN
 	set_song_volume(song_volume);
 
 	s_ending = load_song(DATA_FOLDER + "ending/music.xm");
-	w_ending = play_song(s_ending,0);
+	if (s_ending)
+		w_ending = play_song(s_ending,0);
+	end
 
 	for (z = 1; z <= 4; z++)
 		g_gui     = png_load(DATA_FOLDER + "ending.png");
@@ -462,7 +483,9 @@ BEGIN
 		x = 320+graphic_info(0,g_story,G_X_CENTER);
 		y = 480-34-68/2+4;
 
-		w_story = play_wav(s_story,0);
+		if (s_story)
+			w_story = play_wav(s_story,0);
+		end
 		WHILE (x > -graphic_info(0,g_story,G_X_CENTER))
 			x -= 3;
 			frame;
@@ -478,7 +501,10 @@ BEGIN
 		map_unload(0,g_marcos);
 		map_unload(0,g_story);
 		stop_wav(w_story);
-		unload_wav(s_story);
+		if (s_story)
+			unload_wav(s_story);
+			s_story = NULL;
+		end
 		delete_draw(0);
 		screen_clear();
 	end
@@ -532,7 +558,10 @@ BEGIN
 	delete_text(z);
 
 	stop_song();
-	unload_song(s_ending);
+	if (s_ending)
+		unload_song(s_ending);
+		s_ending = NULL;
+	end
 	title();
 END
 
