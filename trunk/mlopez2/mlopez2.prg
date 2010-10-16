@@ -38,7 +38,7 @@ GLOBAL
 	t_time; t_distance; t_fps = 0;
 	f_small; f_big;
 	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
-	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
+	g_icon; g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
 	s_splash; s_title; w_title; load_title_music = 0;
 
 
@@ -53,7 +53,9 @@ END
 PROCESS Main()
 BEGIN
 	set_title("Marcos Lopez: Part II");
-	set_mode (640,480,color_depth);
+	g_icon = png_load(DATA_FOLDER + "icon.png");
+	set_icon(0, g_icon);
+	set_mode(640,480,color_depth);
 	set_fps  (30,0);
 	_key_init();
 	rand_seed(time());
