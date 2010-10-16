@@ -1,0 +1,19 @@
+#summary Marcos Lopez 2 screenshots and info.
+#labels Featured
+
+*Marcos Lopez 2* is a real-life simulation game for 1 player only. It was made in the year 2010.
+
+It features realistic sound effects and voice recordings, pre-rendered graphics and an orchestral soundtrack.
+
+It is a direct sequel to the 2010 game [MarcosLopez Marcos Lopez].
+
+
+= Screenshots =
+
+[http://bennugames.googlecode.com/svn/trunk/screenshots/MarcosLopez2/1.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/MarcosLopez2/2.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/MarcosLopez2/3.png] [http://bennugames.googlecode.com/svn/trunk/screenshots/MarcosLopez2/4.png]
+
+
+= Downloads =
+
+  * Binaries: [http://bennugames.googlecode.com/files/mlopez2-v001-win32.zip mlopez2-v001-win32.zip] (6.5 MB)
+  * Source: [http://bennugames.googlecode.com/files/mlopez2-v001-src.zip mlopez2-v001-src.zip] (5.6 MB)
