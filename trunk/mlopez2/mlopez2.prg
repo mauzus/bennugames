@@ -39,7 +39,7 @@ GLOBAL
 	f_small; f_big;
 	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
 	g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
-	s_title; w_title; load_title_music = 0;
+	s_splash; s_title; w_title; load_title_music = 0;
 
 
 DECLARE PROCESS player()
@@ -57,6 +57,8 @@ BEGIN
 	set_fps  (30,0);
 	_key_init();
 	rand_seed(time());
+	s_splash = load_wav(DATA_FOLDER + "splash.wav");
+	set_wav_volume(s_splash, 10);
 	s_title = load_song(DATA_FOLDER + "title/music.xm");
 	if (s_title)
 		w_title = play_song(s_title,-1);
@@ -644,6 +646,7 @@ PRIVATE
 	_ANGLE_RIGHT = 0;
 	_ANGLE_LEFT = 1;
 	invincible;
+	w_splash;
 BEGIN
 	ctype = C_SCROLL;
 	x = 20;
@@ -668,6 +671,9 @@ BEGIN
 				speed += acceleration;
 				splash();
 				graph = g_player_hitbox_row;
+				if (!is_playing_wav(w_splash))
+					w_splash = play_wav(s_splash,0,1);
+				end
 			else
 				graph = g_player_hitbox_stand;
 			end
@@ -693,7 +699,6 @@ BEGIN
 				camera_id.angle = 600;
 				invincible = 90;
 				signal(type ball,S_KILL);
-	//			play_wav(s_explosion,0,1);
 			end
 			if (invincible > 0)
 				flags = 4;
