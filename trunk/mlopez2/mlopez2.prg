@@ -5,8 +5,8 @@
                 * FECHA DE TERMINADO: 00-00-2010   *
                 ***********************************/
 //debug
-import "mod_say";
-import "mod_debug";
+//import "mod_say";
+//import "mod_debug";
 
 import "mod_draw";
 import "mod_grproc";
@@ -31,11 +31,13 @@ CONST
 	DATA_FOLDER   = "data/";
 
 GLOBAL
-	color_depth = 16;
+	color_depth = 32;
+	color_depth_in_game = 16;
+	color_depth_title   = 32;
 	game_state;
 	game_stage;
 	camera_id;
-	t_time; t_distance; t_fps = 0;
+	t_time; t_distance; t_fps = 0; t_color_depth;
 	f_small; f_big;
 	g_player_stand; g_player_row; g_player_hitbox_stand; g_player_hitbox_row;
 	g_icon; g_splash; g_bomb; g_ball; g_blank; g_back; g_water; g_distance; g_time;
@@ -81,15 +83,17 @@ BEGIN
 	title();
 
 	LOOP
-		if (key(_alt) && key(_f4)) exit(); end
+//		if (key(_alt) && key(_f4)) exit(); end
 
-		if (_key(_f1,_key_down))
-			if (t_fps != 0) delete_text(t_fps); t_fps = 0;
-			else t_fps = write_var(f_big,10,10,0,fps); end
+		if (key(_alt) && _key(_f1,_key_down))
+			if (t_fps != 0) delete_text(t_fps); t_fps = 0; delete_text(t_color_depth);
+			else t_fps = write_var(f_big,10,10,0,fps); t_color_depth = write_var(f_big,10,34,0,color_depth); end
 		end
-		if (_key(_f3,_key_down)) // doesn't work
-//			if (color_depth == 16) color_depth = 32; set_mode(640,480,color_depth);
-//			else color_depth = 16; set_mode(640,480,color_depth); end
+		if (key(_alt) && _key(_f3,_key_down))
+			if (color_depth_in_game == 16) color_depth_in_game = 32;
+			else color_depth_in_game = 16; end
+			color_depth = color_depth_in_game;
+			set_mode(640,480,color_depth);
 		end
 		if (_key(_f4,_key_down) || (key(_alt) && _key(_enter,_key_down)))
 			if (full_screen == 0) full_screen = 1; set_mode(640,480,color_depth);
@@ -118,7 +122,7 @@ PRIVATE
 	g_menu_story; g_menu_exit;
 	option     = 1;
 BEGIN
-	color_depth = 32;
+	color_depth = color_depth_title;
 	set_mode(640,480,color_depth);
 	set_song_volume(128);
 
@@ -195,7 +199,7 @@ BEGIN
 		s_title = NULL;
 	end
 
-	color_depth = 16;
+	color_depth = color_depth_in_game;
 	set_mode(640,480,color_depth);
 
 	game_stage = 1;
