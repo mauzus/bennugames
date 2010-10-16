@@ -1,9 +1,6 @@
 #ifndef __KEY_EVENT_LIB
 #define __KEY_EVENT_LIB
 
-import "mod_key";
-import "mod_proc";
-
 global
     _key_use = 0;
     _key_state[127][1];

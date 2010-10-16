@@ -15,10 +15,11 @@ import "mod_map";
 import "mod_math";
 import "mod_proc";
 import "mod_rand";
+import "mod_screen";
 import "mod_scroll";
 import "mod_sound";
 import "mod_text";
-import "mod_timers";
+import "mod_time";
 import "mod_video";
 import "mod_wm";
 
@@ -280,7 +281,7 @@ BEGIN
 		if (distance <= 0)
 			break;
 		end
-		if (_key(_f2,_key_down))
+		if (key(_alt) && _key(_f2,_key_down))
 			break;
 		end
 
@@ -879,4 +880,95 @@ BEGIN
 		angulo += angle_stepsize;
 		frame;
 	END
+END
+
+
+PROCESS fake_loader()
+BEGIN
+	fnt_load("data/big.fnt");
+	fnt_load("data/small.fnt");
+	load_song("data/1/music.xm");
+	load_song("data/1/story.ogg");
+	load_song("data/2/music.xm");
+	load_song("data/2/story.ogg");
+	load_song("data/3/music.xm");
+	load_song("data/3/story.ogg");
+	load_song("data/4/music.xm");
+	load_song("data/4/story.ogg");
+	load_song("data/ending/music.xm");
+	load_song("data/title/music.xm");
+	load_wav("data/splash.wav");
+	load_wav("data/ending/story_1.ogg");
+	load_wav("data/ending/story_2.ogg");
+	load_wav("data/ending/story_3.ogg");
+	load_wav("data/ending/story_4.ogg");
+	png_load("data/blank.png");
+	png_load("data/distance.png");
+	png_load("data/ending.png");
+	png_load("data/icon.png");
+	png_load("data/mission_accomplished.png");
+	png_load("data/player_hitbox_row.png");
+	png_load("data/player_hitbox_stand.png");
+	png_load("data/story.png");
+	png_load("data/time.png");
+	png_load("data/1/back.png");
+	png_load("data/1/ball.png");
+	png_load("data/1/bomb.png");
+	png_load("data/1/mission.png");
+	png_load("data/1/picture.png");
+	png_load("data/1/player_row.png");
+	png_load("data/1/player_stand.png");
+	png_load("data/1/splash.png");
+	png_load("data/1/story.png");
+	png_load("data/1/water.png");
+	png_load("data/2/back.png");
+	png_load("data/2/ball.png");
+	png_load("data/2/bomb.png");
+	png_load("data/2/mission.png");
+	png_load("data/2/picture.png");
+	png_load("data/2/player_row.png");
+	png_load("data/2/player_stand.png");
+	png_load("data/2/splash.png");
+	png_load("data/2/story.png");
+	png_load("data/2/water.png");
+	png_load("data/3/back.png");
+	png_load("data/3/ball.png");
+	png_load("data/3/bomb.png");
+	png_load("data/3/mission.png");
+	png_load("data/3/picture.png");
+	png_load("data/3/player_row.png");
+	png_load("data/3/player_stand.png");
+	png_load("data/3/splash.png");
+	png_load("data/3/story.png");
+	png_load("data/3/water.png");
+	png_load("data/4/back.png");
+	png_load("data/4/ball.png");
+	png_load("data/4/bomb.png");
+	png_load("data/4/mission.png");
+	png_load("data/4/picture.png");
+	png_load("data/4/player_row.png");
+	png_load("data/4/player_stand.png");
+	png_load("data/4/splash.png");
+	png_load("data/4/story.png");
+	png_load("data/4/water.png");
+	png_load("data/ending/marcos.png");
+	png_load("data/ending/story_1.png");
+	png_load("data/ending/story_2.png");
+	png_load("data/ending/story_3.png");
+	png_load("data/ending/story_4.png");
+	png_load("data/ending/the_end_1.png");
+	png_load("data/ending/the_end_2.png");
+	png_load("data/ending/the_end_3.png");
+	png_load("data/ending/wife.png");
+	png_load("data/title/clouds.png");
+	png_load("data/title/frame.png");
+	png_load("data/title/game_over.png");
+	png_load("data/title/marcos.png");
+	png_load("data/title/menu_exit.png");
+	png_load("data/title/menu_story.png");
+	png_load("data/title/moon.png");
+	png_load("data/title/pre_title_1.png");
+	png_load("data/title/pre_title_2.png");
+	png_load("data/title/stars.png");
+	png_load("data/title/wife.png");
 END
