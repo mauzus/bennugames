@@ -3,7 +3,7 @@
 
 *Marcos Lopez 2* is a real-life simulation game for 1 player only. It was made in the year 2010.
 
-It features realistic sound effects and voice recordings, pre-rendered graphics and an orchestral soundtrack.
+It features realistic sound effects, voice recordings, pre-rendered graphics and an orchestral soundtrack.
 
 It is a direct sequel to the 2008 game [MarcosLopez Marcos Lopez].
 
