@@ -15,5 +15,5 @@ It is a direct sequel to the 2008 game [MarcosLopez Marcos Lopez].
 
 = Downloads =
 
-  * Binaries: [http://bennugames.googlecode.com/files/mlopez2-v001-win32.zip mlopez2-v001-win32.zip] (6.5 MB)
+  * Binaries: [http://bennugames.googlecode.com/files/mlopez2-v001a-win32.zip mlopez2-v001a-win32.zip] (6.5 MB)
   * Source: [http://bennugames.googlecode.com/files/mlopez2-v001-src.zip mlopez2-v001-src.zip] (5.6 MB)
