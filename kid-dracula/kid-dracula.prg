@@ -34,6 +34,20 @@ CONST
 GLOBAL
 	game_state;
 	t_fps = 0;
+	level_struct[13][15] = 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,9,9,9,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,9,9,2,2,2,2,
+	                       9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,2,
+	                       9,9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,
+	                       9,9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2;
 
 PROCESS Main()
 BEGIN
@@ -45,6 +59,7 @@ BEGIN
 	t_fps = write_var(0,10,10,0,fps);
 	_key_init();
 	player();
+	load_level();
 
 	LOOP
 		if (key(_alt) && key(_f4)) exit(); end
@@ -71,13 +86,19 @@ PRIVATE
 	anim_state = 0;
 	anim_graph[4] = 0, 0, 10, 12, 12;
 	anim_leg = 1;
+	point_x;
+	point_y;
+	control_point[7];
 BEGIN
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
 	graph = 1;
 	x = 128;
-	y = 150;
+	y = 144;
 	write_var(0,10,20,0,graph);
+//	write_var(0,10,30,0,tile_info);
+//	write_var(0,10,40,0,point_x);
+//	write_var(0,10,50,0,point_y);
 	LOOP
 		// movement and animation
 		if (_key(_right,_key_pressed))
@@ -104,8 +125,15 @@ BEGIN
 					else anim_leg = 1; end
 				end
 				anim_state++;
-				if (flags == 0) x++;
-				else x--; end
+
+				get_real_point(4, &point_x, &point_y);
+				control_point[4] = get_tile_info(point_x,point_y);
+				get_real_point(6, &point_x, &point_y);
+				control_point[6] = get_tile_info(point_x,point_y);
+				if (control_point[4] != 9 && control_point[6] != 9)
+					if (flags == 0) x++;
+					else x--; end
+				end
 			end
 		else
 			graph = 1;
@@ -114,4 +142,26 @@ BEGIN
 
 		frame;
 	END
+END
+
+FUNCTION get_tile_info(x,y)
+BEGIN
+	return (level_struct[y/16][x/16]);
+END
+
+PROCESS load_level()
+PRIVATE
+	f_tiles;
+	m_canvas;
+BEGIN
+	f_tiles = fpg_load("fpg/tiles.fpg");
+	m_canvas = map_new(256,224,16);
+	map_clear(0,m_canvas,rgb(255,0,255));
+
+	for(y = 0; y < 14; y++)
+		for (x = 0; x < 16; x++)
+			map_xputnp(0, m_canvas, f_tiles, level_struct[y][x], x*16+8, y*16+8, 0, 100, 100, B_NOCOLORKEY);
+		end
+	end
+	screen_put(0, m_canvas);
 END
