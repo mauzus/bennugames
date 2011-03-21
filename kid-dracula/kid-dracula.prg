@@ -37,15 +37,15 @@ GLOBAL
 	level_struct[13][15] = 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,9,9,
+	                       2,2,2,2,2,2,2,2,2,2,2,2,2,9,9,2,
+	                       2,2,2,2,2,2,2,2,2,2,2,9,9,9,9,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,9,9,9,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,9,9,2,2,2,2,
+	                       2,2,2,2,2,2,2,2,2,9,9,2,2,2,2,2,
+	                       9,9,9,9,9,9,9,9,9,9,9,9,2,2,2,2,
 	                       9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,2,
-	                       9,9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,
-	                       9,9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,
+	                       9,9,9,9,9,9,9,9,9,9,9,9,9,2,2,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2;
 
@@ -82,6 +82,7 @@ PRIVATE
 	move_charge;
 	move_charge_max = 6;
 	f_char;
+	i;
 
 	anim_state = 0;
 	anim_graph[4] = 0, 0, 10, 12, 12;
@@ -89,17 +90,25 @@ PRIVATE
 	point_x;
 	point_y;
 	control_point[7];
+	gravity = 64;
+	y_speed = 0;
+	y_sub_speed = 0;
 BEGIN
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
 	graph = 1;
 	x = 128;
-	y = 144;
+	y = 32;
 	write_var(0,10,20,0,graph);
 //	write_var(0,10,30,0,tile_info);
-//	write_var(0,10,40,0,point_x);
-//	write_var(0,10,50,0,point_y);
+	write_var(0,10,40,0,y_speed);
+	write_var(0,10,50,0,y_sub_speed);
 	LOOP
+		for (i = 0; i <= 7; i++)
+			get_real_point(i, &point_x, &point_y);
+			control_point[i] = get_tile_info(point_x,point_y);
+		end
+
 		// movement and animation
 		if (_key(_right,_key_pressed))
 			flags = 0;
@@ -126,10 +135,6 @@ BEGIN
 				end
 				anim_state++;
 
-				get_real_point(4, &point_x, &point_y);
-				control_point[4] = get_tile_info(point_x,point_y);
-				get_real_point(6, &point_x, &point_y);
-				control_point[6] = get_tile_info(point_x,point_y);
 				if (control_point[4] != 9 && control_point[6] != 9)
 					if (flags == 0) x++;
 					else x--; end
@@ -138,6 +143,26 @@ BEGIN
 		else
 			graph = 1;
 			move_charge = 0;
+		end
+
+		if (control_point[0] != 9)
+			y_sub_speed += gravity;
+		else
+			y_sub_speed = 0;
+			y_speed = 0;
+		end
+		if (y_sub_speed >= 256)
+			y_speed++;
+			y_sub_speed -= 256;
+		end
+
+		if (_key(_d,_key_down))
+			y_speed = -4;
+			y_sub_speed -= 16;
+		end
+
+		if (y_speed != 0 || y_sub_speed != 0)
+			y += y_speed;
 		end
 
 		frame;
