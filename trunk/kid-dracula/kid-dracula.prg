@@ -1,5 +1,5 @@
                 /***********************************
-                * JUEGO: "Dracula Kid Something"   *
+                * JUEGO: "Kid Dracula Something"   *
                 * PROGRAMADOR: mz                  *
                 * FECHA DE INICIO: 03-20-2011      *
                 * FECHA DE TERMINADO: 00-00-2011   *
@@ -37,7 +37,7 @@ GLOBAL
 
 PROCESS Main()
 BEGIN
-	set_title("Dracula Kid Something");
+	set_title("Kid Dracula Something");
 	scale_mode = SCALE_NORMAL2X;
 //	scale_resolution = 6400480;
 	set_mode(256,224,16);
