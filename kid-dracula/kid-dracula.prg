@@ -190,7 +190,7 @@ BEGIN
 		end
 
 		// y position fixing
-		if (air_state == 0)
+		if (air_state == 0 || air_state == 2)
 			for (i = 0; i <= 8; i++)
 				get_real_point(i, &point_x, &point_y);
 				control_point[i] = get_tile_info(point_x,point_y);
