@@ -34,6 +34,7 @@ CONST
 GLOBAL
 	game_state;
 	t_fps = 0;
+	slow_mode = 0;
 	level_struct[13][15] = 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,2,2,2,13,2,2,2,2,2,2,2,2,2,2,
 	                       2,2,2,2,18,14,2,2,2,2,2,2,2,2,2,2,
@@ -69,6 +70,10 @@ BEGIN
 			if (t_fps != 0) delete_text(t_fps); t_fps = 0;
 			else t_fps = write_var(0,10,10,0,fps); end
 		end
+		if (_key(_f2,_key_down))
+			if (slow_mode != 0) slow_mode = 0; set_fps(60,0);
+			else slow_mode = 1; set_fps(10,0); end
+		end
 		if (_key(_f4,_key_down) || (key(_alt) && _key(_enter,_key_down)))
 			if (full_screen == 0) full_screen = 1; set_mode(256,224,16);
 			else full_screen = 0; set_mode(256,224,16); end
@@ -89,23 +94,25 @@ PRIVATE
 	anim_leg = 1;
 	point_x;
 	point_y;
-	control_point[7];
+	control_point[8];
 	gravity = 64;
 	y_speed = 0;
 	y_sub_speed = 0;
 	y_max_speed = 12;
+	air_state = 0; // 0 = not in air; 1 = jumping; 2 = falling down
 BEGIN
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
 	graph = 1;
-	x = 128;
-	y = 32;
-	write_var(0,10,20,0,graph);
-//	write_var(0,10,30,0,tile_info);
+	x = 172;
+	y = 128;
+	write_var(0,10,20,0,x);
+	write_var(0,50,20,0,y);
+	write_var(0,10,30,0,air_state);
 	write_var(0,10,40,0,y_speed);
 	write_var(0,10,50,0,y_sub_speed);
 	LOOP
-		for (i = 0; i <= 7; i++)
+		for (i = 0; i <= 8; i++)
 			get_real_point(i, &point_x, &point_y);
 			control_point[i] = get_tile_info(point_x,point_y);
 		end
@@ -147,14 +154,16 @@ BEGIN
 		end
 
 		// jumping and gravity
-//		if (control_point[1] != 9 && control_point[2] != 9)
-		if (control_point[0] != 9)
+		if ( (air_state == 0 && control_point[1] != 9 && control_point[2] != 9) ||
+		     (air_state != 0 && (control_point[1] != 9 || control_point[2] != 9)) )
 			if (y_speed <= y_max_speed)
 				y_sub_speed += gravity;
 			end
 		else
-			y_sub_speed = 0;
-			y_speed = 0;
+			if (control_point[0] == 9)
+				y_sub_speed = 0;
+				y_speed = 0;
+			end
 		end
 
 		if (y_sub_speed >= 256)
@@ -170,16 +179,24 @@ BEGIN
 		if (y_speed != 0 || y_sub_speed != 0)
 			y += y_speed;
 		end
+		if (y_speed != 0)
+			if (y_speed > 0)
+				air_state = 2;
+			else
+				air_state = 1;
+			end
+		else
+			air_state = 0;
+		end
 
 		// y position fixing
-		get_real_point(0, &point_x, &point_y);
-		control_point[0] = get_tile_info(point_x,point_y);
-		switch (control_point[0])
-			case 9:
-				y = (y/16)*16;
+		if (air_state == 0)
+			for (i = 0; i <= 8; i++)
+				get_real_point(i, &point_x, &point_y);
+				control_point[i] = get_tile_info(point_x,point_y);
 			end
-			default:
-				
+			if (control_point[1] == 9 || control_point[2] == 9)
+				y = (y/16)*16;
 			end
 		end
 
