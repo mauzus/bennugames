@@ -35,9 +35,9 @@ GLOBAL
 	game_state;
 	t_fps = 0;
 	level_struct[13][15] = 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,9,9,
+	                       2,2,2,2,2,13,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,2,18,14,2,2,2,2,2,2,2,2,2,2,
+	                       2,2,2,17,16,15,2,2,2,2,2,2,2,2,9,9,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,9,9,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,9,9,9,9,2,
 	                       2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
@@ -93,6 +93,7 @@ PRIVATE
 	gravity = 64;
 	y_speed = 0;
 	y_sub_speed = 0;
+	y_max_speed = 12;
 BEGIN
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
@@ -145,12 +146,17 @@ BEGIN
 			move_charge = 0;
 		end
 
+		// jumping and gravity
+//		if (control_point[1] != 9 && control_point[2] != 9)
 		if (control_point[0] != 9)
-			y_sub_speed += gravity;
+			if (y_speed <= y_max_speed)
+				y_sub_speed += gravity;
+			end
 		else
 			y_sub_speed = 0;
 			y_speed = 0;
 		end
+
 		if (y_sub_speed >= 256)
 			y_speed++;
 			y_sub_speed -= 256;
@@ -163,6 +169,18 @@ BEGIN
 
 		if (y_speed != 0 || y_sub_speed != 0)
 			y += y_speed;
+		end
+
+		// y position fixing
+		get_real_point(0, &point_x, &point_y);
+		control_point[0] = get_tile_info(point_x,point_y);
+		switch (control_point[0])
+			case 9:
+				y = (y/16)*16;
+			end
+			default:
+				
+			end
 		end
 
 		frame;
