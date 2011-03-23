@@ -83,6 +83,9 @@ BEGIN
 END
 
 PROCESS player()
+#define STATE_GROUND 0
+#define STATE_JUMPING 1
+#define STATE_FALLING 2
 PRIVATE
 	move_charge;
 	move_charge_max = 6;
@@ -98,8 +101,8 @@ PRIVATE
 	gravity = 64;
 	y_speed = 0;
 	y_sub_speed = 0;
-	y_max_speed = 12;
-	air_state = 0; // 0 = not in air; 1 = jumping; 2 = falling down
+	y_max_speed = 5;
+	air_state = STATE_GROUND; // 0 = not in air; 1 = jumping; 2 = falling down
 BEGIN
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
@@ -108,9 +111,10 @@ BEGIN
 	y = 128;
 	write_var(0,10,20,0,x);
 	write_var(0,50,20,0,y);
-	write_var(0,10,30,0,air_state);
-	write_var(0,10,40,0,y_speed);
-	write_var(0,10,50,0,y_sub_speed);
+	write_var(0,10,30,0,anim_state);
+	write_var(0,10,40,0,air_state);
+	write_var(0,10,50,0,y_speed);
+	write_var(0,10,60,0,y_sub_speed);
 	LOOP
 		for (i = 0; i <= 8; i++)
 			get_real_point(i, &point_x, &point_y);
@@ -128,7 +132,7 @@ BEGIN
 			if (move_charge <= move_charge_max)
 				move_charge++;
 			else
-				if (graph == 1)
+				if (air_state == STATE_GROUND && graph != 2 && graph != 3 && graph != 4)
 					graph = 2;
 					anim_state = 9;
 				elseif ((graph == 2) && (anim_state == anim_graph[2]))
@@ -154,16 +158,11 @@ BEGIN
 		end
 
 		// jumping and gravity
-		if ( (air_state == 0 && control_point[1] != 9 && control_point[2] != 9) ||
-		     (air_state != 0 && (control_point[1] != 9 || control_point[2] != 9)) )
-			if (y_speed <= y_max_speed)
-				y_sub_speed += gravity;
-			end
+		if (control_point[1] != 9 && control_point[2] != 9)
+			if (y_speed <= y_max_speed) y_sub_speed += gravity; end
 		else
-			if (control_point[0] == 9)
-				y_sub_speed = 0;
-				y_speed = 0;
-			end
+			y_sub_speed = 0;
+			y_speed = 0;
 		end
 
 		if (y_sub_speed >= 256)
@@ -171,26 +170,47 @@ BEGIN
 			y_sub_speed -= 256;
 		end
 
+		// jump
 		if (_key(_d,_key_down))
 			y_speed = -4;
 			y_sub_speed -= 16;
 		end
 
+		// if we have y_speed
 		if (y_speed != 0 || y_sub_speed != 0)
-			y += y_speed;
+			if (y_speed < 0 && (control_point[7] == 9 || control_point[8] == 9) )
+				// reset y_speed if we collide the head into something
+				y_speed = 0;
+				y_sub_speed = 0;
+			else
+				// update y position
+				y += y_speed;
+			end
 		end
+
+		// set air_state depending on y_speed
 		if (y_speed != 0)
 			if (y_speed > 0)
-				air_state = 2;
+				air_state = STATE_FALLING;
 			else
-				air_state = 1;
+				air_state = STATE_JUMPING;
 			end
-		else
-			air_state = 0;
+		elseif (control_point[1] == 9 || control_point[2] == 9 || control_point[0] == 9)
+			air_state = STATE_GROUND;
+		end
+
+		// jumping animation
+		if (air_state == STATE_FALLING)
+			if (anim_state >= 12) anim_state = 0; end
+			if (anim_state >= 6) graph = 7;
+			else graph = 6; end
+			anim_state++;
+		elseif (air_state == STATE_JUMPING)
+			graph = 5;
 		end
 
 		// y position fixing
-		if (air_state == 0 || air_state == 2)
+		if (air_state == STATE_GROUND || air_state == STATE_FALLING)
 			for (i = 0; i <= 8; i++)
 				get_real_point(i, &point_x, &point_y);
 				control_point[i] = get_tile_info(point_x,point_y);
