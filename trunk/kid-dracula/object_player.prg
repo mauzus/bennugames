@@ -14,7 +14,7 @@ PUBLIC
 	point_x; point_y;
 	control_point[8];
 
-	air_state = STATE_GROUND; // 0: not in air; 1: jumping; 2: falling down
+	air_state  = STATE_GROUND;   // 0: not in air; 1: jumping; 2: falling down
 	anim_state = STATE_STANDING; // 0: standing still; 1: walking
 
 	i;
@@ -39,7 +39,7 @@ BEGIN
 
 		// y position fixing
 		if (air_state == STATE_GROUND || air_state == STATE_FALLING)
-			if (control_point[0] == 9)
+			if (control_point[0] == TILE_SOLID)
 				object_pid.y = (object_pid.y/16)*16;
 			end
 		end
@@ -67,7 +67,7 @@ BEGIN
 				move_charge++;
 			else
 				object_pid.anim_state = STATE_WALKING;
-				if (object_pid.control_point[4] != 9 && object_pid.control_point[6] != 9)
+				if (object_pid.control_point[4] != TILE_SOLID && object_pid.control_point[6] != TILE_SOLID)
 					if (object_pid.flags == 0) object_pid.x++;
 					else object_pid.x--; end
 				end
@@ -94,7 +94,7 @@ BEGIN
 //	write_var(0,10,60,0,y_sub_speed);
 	LOOP
 		// gravity
-		if (object_pid.control_point[1] != 9 && object_pid.control_point[2] != 9)
+		if (object_pid.control_point[1] != TILE_SOLID && object_pid.control_point[2] != TILE_SOLID)
 			if (y_speed <= y_max_speed) y_sub_speed += gravity; end
 		else
 			y_sub_speed = 0;
@@ -115,7 +115,7 @@ BEGIN
 		// if we have y_speed
 		if (y_speed != 0 || y_sub_speed != 0)
 			// if jumping and colliding the head
-			if (y_speed < 0 && (object_pid.control_point[7] == 9 || object_pid.control_point[8] == 9) )
+			if (y_speed < 0 && (object_pid.control_point[7] == TILE_SOLID || object_pid.control_point[8] == TILE_SOLID) )
 				y_speed = 0;
 				y_sub_speed = 0;
 			else
@@ -131,7 +131,7 @@ BEGIN
 			else
 				object_pid.air_state = STATE_JUMPING;
 			end
-		elseif (object_pid.control_point[1] == 9 || object_pid.control_point[2] == 9 || object_pid.control_point[0] == 9)
+		elseif (object_pid.control_point[1] == TILE_SOLID || object_pid.control_point[2] == TILE_SOLID || object_pid.control_point[0] == TILE_SOLID)
 			object_pid.air_state = STATE_GROUND;
 		end
 

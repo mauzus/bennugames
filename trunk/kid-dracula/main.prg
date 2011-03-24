@@ -10,16 +10,16 @@
 PROCESS Main()
 BEGIN
 	set_title("Kid Dracula Something");
-//	scale_mode = SCALE_NORMAL2X;
+	scale_mode = SCALE_NORMAL2X;
 	scale_mode = SCALE_SCALE2X;
 //	scale_resolution = 6400480;
 	set_mode(320,240,16);
 	set_fps(60,0);
 	t_fps = write_var(0,10,10,0,fps);
 	_key_init();
-	object(OBJECT_TYPE_PLAYER, 172, 128);
-//	object(OBJECT_TYPE_PLAYER, 128, 0);
+	load_tiles();
 	load_level();
+	object(OBJECT_TYPE_PLAYER, 172, 128);
 
 	LOOP
 		if (key(_alt) && key(_f4)) exit(); end
@@ -58,16 +58,14 @@ END
 
 FUNCTION get_tile_info(x,y)
 BEGIN
-	return (level_struct[y/16][x/16]);
+	return (tile_type[level_struct[y/16][x/16]]);
 END
 
 
 PROCESS load_level()
 PRIVATE
-	f_tiles;
 	m_canvas;
 BEGIN
-	f_tiles = fpg_load("fpg/tiles.fpg");
 	m_canvas = map_new(320,240,16);
 	map_clear(0,m_canvas,rgb(255,0,255));
 
@@ -77,4 +75,26 @@ BEGIN
 		end
 	end
 	screen_put(0, m_canvas);
+END
+
+PROCESS load_tiles()
+PRIVATE
+	i = 1;
+	fp;
+BEGIN
+	f_tiles = fpg_load("fpg/tiles.fpg");
+	while (map_exists(f_tiles, i))
+		i++;
+	end
+	i--;
+	tile_type = alloc(i);
+	memset(tile_type,0,i);
+	tile_count = i;
+	fp = fopen("fpg/tiles.info",O_READ);
+	i = 1;
+	while (!feof(fp))
+		fread(tile_type+i, 1, fp);
+		i++;
+	end
+	fclose(fp);
 END
