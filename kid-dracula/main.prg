@@ -11,7 +11,7 @@ PROCESS Main()
 BEGIN
 	set_title("Kid Dracula Something");
 	scale_mode = SCALE_NORMAL2X;
-	scale_mode = SCALE_SCALE2X;
+//	scale_mode = SCALE_SCALE2X;
 //	scale_resolution = 6400480;
 	set_mode(320,240,16);
 	set_fps(60,0);
@@ -19,7 +19,10 @@ BEGIN
 	_key_init();
 	load_tiles();
 	load_level();
-	object(OBJECT_TYPE_PLAYER, 172, 128);
+	start_scroll(0,0,scroll_map,0,0,0);
+//	scroll[0].camera = object(OBJECT_TYPE_PLAYER, 172, 128);
+	scroll[0].camera = object_player(172, 128);
+	
 
 	LOOP
 		if (key(_alt) && key(_f4)) exit(); end
@@ -62,19 +65,16 @@ BEGIN
 END
 
 
-PROCESS load_level()
-PRIVATE
-	m_canvas;
+FUNCTION load_level()
 BEGIN
-	m_canvas = map_new(320,240,16);
-	map_clear(0,m_canvas,rgb(255,0,255));
+	scroll_map = map_new(640,480,16);
+	map_clear(0,scroll_map,rgb(255,0,255));
 
-	for(y = 0; y < 15; y++)
-		for (x = 0; x < 20; x++)
-			map_xputnp(0, m_canvas, f_tiles, level_struct[y][x], x*16+8, y*16+8, 0, 100, 100, B_NOCOLORKEY);
+	for(y = 0; y < 30; y++)
+		for (x = 0; x < 40; x++)
+			map_xputnp(0, scroll_map, f_tiles, level_struct[y][x], x*16+8, y*16+8, 0, 100, 100, B_NOCOLORKEY);
 		end
 	end
-	screen_put(0, m_canvas);
 END
 
 PROCESS load_tiles()

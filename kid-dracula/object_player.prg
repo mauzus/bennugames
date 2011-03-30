@@ -6,19 +6,32 @@
 #define STATE_STANDING 0
 #define STATE_WALKING 1
 
+#define CP_CENTER     0
+#define CP_FOOT_LEFT  1
+#define CP_FOOT_RIGHT 2
+#define CP_LEFT_DOWN  3
+#define CP_LEFT_MID   5
+#define CP_LEFT_UP    7
+#define CP_RIGHT_DOWN 4
+#define CP_RIGHT_MID  6
+#define CP_RIGHT_UP   8
+#define CP_HEAD_LEFT  9
+#define CP_HEAD_RIGHT 10
+
 PROCESS object_player(x, y)
 PUBLIC
 	object_pid;
 	f_char;
 
 	point_x; point_y;
-	control_point[8];
+	control_point[10];
 
 	air_state  = STATE_GROUND;   // 0: not in air; 1: jumping; 2: falling down
 	anim_state = STATE_STANDING; // 0: standing still; 1: walking
 
 	i;
 BEGIN
+	ctype = C_SCROLL;
 	object_pid = id;
 	f_char = fpg_load("fpg/char.fpg");
 	object_pid.file = f_char;
@@ -32,16 +45,16 @@ BEGIN
 	player_movement_y(object_pid);
 	player_animation(object_pid);
 	LOOP
-		for (i = 0; i <= 8; i++)
+		for (i = 0; i <= 10; i++)
 			get_real_point(i, &point_x, &point_y);
 			control_point[i] = get_tile_info(point_x, point_y);
 		end
 
 		// y position fixing
-		if (air_state == STATE_GROUND || air_state == STATE_FALLING)
-			if (control_point[0] == TILE_SOLID)
-				object_pid.y = (object_pid.y/16)*16;
-			end
+		if (control_point[CP_CENTER]     == TILE_SOLID ||
+		    control_point[CP_FOOT_LEFT]  == TILE_SOLID ||
+		    control_point[CP_FOOT_RIGHT] == TILE_SOLID)
+			object_pid.y = (object_pid.y/16)*16;
 		end
 
 		frame;
@@ -53,6 +66,8 @@ PROCESS player_movement_x(object_player object_pid)
 PRIVATE
 	move_charge;
 	move_charge_max = 6;
+	block_x_movement = 0;
+	i;
 BEGIN
 //	priority = object_pid.priority - 1;
 	LOOP
@@ -67,9 +82,16 @@ BEGIN
 				move_charge++;
 			else
 				object_pid.anim_state = STATE_WALKING;
-				if (object_pid.control_point[4] != TILE_SOLID && object_pid.control_point[6] != TILE_SOLID)
-					if (object_pid.flags == 0) object_pid.x++;
-					else object_pid.x--; end
+				for (i = CP_RIGHT_DOWN; i <= CP_RIGHT_UP; i += 2)
+					if (object_pid.control_point[i] == TILE_SOLID)
+						block_x_movement = 1;
+					end
+				end
+				if (!block_x_movement)
+					if (object_pid.flags == 0) object_pid.x+=1;
+					else object_pid.x-=1; end
+				else
+					block_x_movement = 0;
 				end
 			end
 		else // if not pressing left or right
@@ -87,14 +109,16 @@ PRIVATE
 	gravity = 64;
 	y_speed = 0;
 	y_sub_speed = 0;
-	y_max_speed = 5;
+	y_max_speed = 4;
+	i;
 BEGIN
 //	priority = object_pid.priority - 1;
 //	write_var(0,10,50,0,y_speed);
 //	write_var(0,10,60,0,y_sub_speed);
 	LOOP
 		// gravity
-		if (object_pid.control_point[1] != TILE_SOLID && object_pid.control_point[2] != TILE_SOLID)
+		if (object_pid.control_point[CP_FOOT_LEFT]  != TILE_SOLID &&
+		    object_pid.control_point[CP_FOOT_RIGHT] != TILE_SOLID)
 			if (y_speed <= y_max_speed) y_sub_speed += gravity; end
 		else
 			y_sub_speed = 0;
@@ -109,13 +133,15 @@ BEGIN
 		// jump
 		if (_key(_d,_key_down))
 			y_speed = -4;
-			y_sub_speed -= 16;
+			y_sub_speed -= 196;
 		end
 
 		// if we have y_speed
 		if (y_speed != 0 || y_sub_speed != 0)
 			// if jumping and colliding the head
-			if (y_speed < 0 && (object_pid.control_point[7] == TILE_SOLID || object_pid.control_point[8] == TILE_SOLID) )
+			if (object_pid.air_state != STATE_GROUND && y_speed < 0
+			 && (object_pid.control_point[CP_HEAD_LEFT] == TILE_SOLID
+			     || object_pid.control_point[CP_HEAD_RIGHT] == TILE_SOLID) )
 				y_speed = 0;
 				y_sub_speed = 0;
 			else
@@ -131,8 +157,12 @@ BEGIN
 			else
 				object_pid.air_state = STATE_JUMPING;
 			end
-		elseif (object_pid.control_point[1] == TILE_SOLID || object_pid.control_point[2] == TILE_SOLID || object_pid.control_point[0] == TILE_SOLID)
-			object_pid.air_state = STATE_GROUND;
+		else
+			for (i = CP_CENTER; i <= CP_FOOT_RIGHT; i++)
+				if (object_pid.control_point[i] == TILE_SOLID)
+					object_pid.air_state = STATE_GROUND;
+				end
+			end
 		end
 
 		frame;
