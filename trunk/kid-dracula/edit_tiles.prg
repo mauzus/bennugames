@@ -6,8 +6,8 @@ PRIVATE
 	mouse_pressed;
 BEGIN
 	set_title("Tile Editor");
-//	scale_mode = SCALE_NORMAL2X;
-	scale_mode = SCALE_SCALE2X;
+	scale_mode = SCALE_NORMAL2X;
+//	scale_mode = SCALE_SCALE2X;
 //	scale_resolution = 6400480;
 	set_mode(320,240,16);
 	set_fps(60,0);
