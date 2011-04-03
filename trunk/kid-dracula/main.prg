@@ -21,7 +21,7 @@ BEGIN
 	load_level();
 	start_scroll(0,0,scroll_map,0,0,0);
 //	scroll[0].camera = object(OBJECT_TYPE_PLAYER, 172, 128);
-	scroll[0].camera = object_player(172, 128);
+	scroll[0].camera = object_player(16, 240);
 	
 
 	LOOP
@@ -61,18 +61,32 @@ END
 
 FUNCTION get_tile_info(x,y)
 BEGIN
-	return (tile_type[level_struct[y/16][x/16]]);
+//	return (tile_type[level_struct[y/16][x/16]]);
+	return (tile_type[*(level_struct+(y/16)*level_size_x+(x/16))]);
 END
 
 
 FUNCTION load_level()
+PRIVATE
+	fp;
 BEGIN
-	scroll_map = map_new(640,480,16);
+	fp = fopen("map/level_1.map",O_READ);
+	fread(&level_size_x, 1, fp);
+	fread(&level_size_y, 1, fp);
+	level_struct = alloc(level_size_x*level_size_y);
+	memset(level_struct, 02, level_size_x*level_size_y);
+
+	for (x = 0; x < (level_size_x*level_size_y); x++)
+		fread(level_struct+x, 1, fp);
+	end
+	fclose(fp);
+
+	scroll_map = map_new(level_size_x*16,level_size_y*16,16);
 	map_clear(0,scroll_map,rgb(255,0,255));
 
-	for(y = 0; y < 30; y++)
-		for (x = 0; x < 40; x++)
-			map_xputnp(0, scroll_map, f_tiles, level_struct[y][x], x*16+8, y*16+8, 0, 100, 100, B_NOCOLORKEY);
+	for (y = 0; y < level_size_y; y++)
+		for (x = 0; x < level_size_x; x++)
+			map_xputnp(0, scroll_map, f_tiles, *(level_struct+y*level_size_x+x), x*16+8, y*16+8, 0, 100, 100, B_NOCOLORKEY);
 		end
 	end
 END

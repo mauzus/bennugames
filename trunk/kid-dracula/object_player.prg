@@ -52,7 +52,8 @@ BEGIN
 		x = object_pid.x-15+x;
 	end
 	y = object_pid.y-32+y;
-	return (tile_type[level_struct[y/16][x/16]]);
+//	return (tile_type[level_struct[y/16][x/16]]);
+	return (tile_type[*(level_struct+(y/16)*level_size_x+(x/16))]);
 END
 
 
@@ -112,6 +113,10 @@ BEGIN
 	LOOP
 		// jump
 		if (_key(_d,_key_down) && object_pid.air_state == STATE_GROUND)
+			y_speed = -4;
+			y_sub_speed -= 196;
+		end
+		if (_key(_a,_key_down)) // multiple-jump for debugging
 			y_speed = -4;
 			y_sub_speed -= 196;
 		end
