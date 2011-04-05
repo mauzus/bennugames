@@ -28,9 +28,10 @@ CONST
 
 	OBJECT_TYPE_PLAYER = 1;
 
-	TILE_BLANK  = 0;
-	TILE_SOLID  = 1;
-	TILE_LADDER = 2;
+	TILE_BLANK      = 0;
+	TILE_SOLID      = 1;
+	TILE_LADDER     = 2;
+	TILE_LADDER_END = 3;
 
 GLOBAL
 	f_tiles;
