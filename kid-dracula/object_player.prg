@@ -1,12 +1,13 @@
 
-#define STATE_GROUND 0
+#define STATE_GROUND  0
 #define STATE_JUMPING 1
 #define STATE_FALLING 2
+#define STATE_LADDER  3
 
 #define STATE_STANDING 0
-#define STATE_WALKING 1
+#define STATE_WALKING  1
 
-#define CP_CENTER     0
+#define CP_HOTSPOT    0
 #define CP_FOOT_LEFT  1
 #define CP_FOOT_RIGHT 2
 #define CP_LEFT_DOWN  3
@@ -17,6 +18,7 @@
 #define CP_RIGHT_UP   8
 #define CP_HEAD_LEFT  9
 #define CP_HEAD_RIGHT 10
+#define CP_CENTER     11
 
 PROCESS object_player(x, y)
 PUBLIC
@@ -72,7 +74,7 @@ BEGIN
 			object_pid.flags = 1;
 		end
 
-		if (_key(_right,_key_pressed) || _key(_left,_key_pressed))
+		if (object_pid.air_state != STATE_LADDER && (_key(_right,_key_pressed) || _key(_left,_key_pressed)))
 			if (move_charge <= move_charge_max)
 				move_charge++;
 			else
@@ -83,8 +85,8 @@ BEGIN
 					end
 				end
 				if (!block_x_movement)
-					if (object_pid.flags == 0) object_pid.x+=1;
-					else object_pid.x-=1; end
+					if (object_pid.flags == 0) object_pid.x += 1;
+					else object_pid.x -= 1; end
 				else
 					block_x_movement = 0;
 				end
@@ -105,7 +107,6 @@ PRIVATE
 	y_speed = 0;
 	y_sub_speed = 0;
 	y_max_speed = 4;
-	i;
 BEGIN
 //	priority = object_pid.priority - 1;
 //	write_var(0,10,50,0,y_speed);
@@ -119,6 +120,40 @@ BEGIN
 		if (_key(_a,_key_down)) // multiple-jump for debugging
 			y_speed = -4;
 			y_sub_speed -= 196;
+		end
+
+		// set STATE_LADDER
+		if (object_pid.air_state != STATE_LADDER && (_key(_up,_key_pressed) || _key(_down,_key_down)) && 
+		    ( (player_point(object_pid,CP_HEAD_LEFT)  == TILE_LADDER &&
+		       player_point(object_pid,CP_HEAD_RIGHT) == TILE_LADDER) ||
+		      (player_point(object_pid,CP_HEAD_LEFT)  == TILE_LADDER_END &&
+		       player_point(object_pid,CP_HEAD_RIGHT) == TILE_LADDER_END)
+		    ))
+			object_pid.air_state = STATE_LADDER;
+			y_speed = 0;
+			y_sub_speed = 0;
+		end
+		if (object_pid.air_state != STATE_LADDER && _key(_down,_key_pressed) && 
+		    (player_point(object_pid,CP_FOOT_LEFT)  == TILE_LADDER_END &&
+		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_LADDER_END))
+			object_pid.y += 15;
+			object_pid.air_state = STATE_LADDER;
+		end
+		// already in ladder?
+		if (object_pid.air_state == STATE_LADDER)
+			if (_key(_up,_key_pressed))
+				object_pid.y -= 1;
+			end
+			if (_key(_down,_key_pressed))
+				object_pid.y += 1;
+			end
+			if (player_point(object_pid,CP_CENTER) != TILE_LADDER &&
+			    player_point(object_pid,CP_CENTER) != TILE_LADDER_END)
+				object_pid.air_state = STATE_GROUND;
+			end
+			if (_key(_d,_key_down))
+				object_pid.air_state = STATE_FALLING;
+			end
 		end
 
 		// if we have y_speed
@@ -145,13 +180,15 @@ BEGIN
 		// gravity
 		if (object_pid.air_state != STATE_JUMPING &&
 		    (player_point(object_pid,CP_FOOT_LEFT)  == TILE_SOLID ||
-		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_SOLID) )
+		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_SOLID ||
+		     player_point(object_pid,CP_FOOT_LEFT)  == TILE_LADDER_END ||
+		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_LADDER_END))
 			y_sub_speed = 0;
 			y_speed = 0;
 			object_pid.air_state = STATE_GROUND;
 			object_pid.y = (object_pid.y/16)*16; // fix y position
 		else
-			if (y_speed <= y_max_speed)
+			if (object_pid.air_state != STATE_LADDER && y_speed <= y_max_speed)
 				y_sub_speed += gravity;
 				if (y_sub_speed >= 256)
 					y_speed++;
@@ -202,6 +239,16 @@ BEGIN
 		elseif (object_pid.air_state == STATE_JUMPING)
 			object_pid.graph = 5;
 			anim_count = 0;
+		elseif (object_pid.air_state == STATE_LADDER)
+			if (anim_count < 8)
+				object_pid.graph = 8;
+			else
+				object_pid.graph = 9;
+			end
+			if (_key(_up,_key_pressed) || _key(_down,_key_pressed))
+				anim_count++;
+			end
+			if (anim_count >= 16) anim_count = 0; end
 		end
 
 		frame;

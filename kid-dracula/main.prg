@@ -20,9 +20,7 @@ BEGIN
 	load_tiles();
 	load_level();
 	start_scroll(0,0,scroll_map,0,0,0);
-//	scroll[0].camera = object(OBJECT_TYPE_PLAYER, 172, 128);
 	scroll[0].camera = object_player(16, 240);
-	
 
 	LOOP
 		if (key(_alt) && key(_f4)) exit(); end
@@ -40,20 +38,6 @@ BEGIN
 			if (full_screen == 0) full_screen = 1; set_mode(256,224,16);
 			else full_screen = 0; set_mode(256,224,16); end
 		end
-		frame;
-	END
-END
-
-
-PROCESS object(object_type, x, y)
-BEGIN
-	switch(object_type)
-		case OBJECT_TYPE_PLAYER:
-			object_player(x, y);
-		end
-	end
-	LOOP
-		// we enter a loop so we can easily pause the game by freezing this tree
 		frame;
 	END
 END
