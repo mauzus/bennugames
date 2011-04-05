@@ -38,6 +38,11 @@ BEGIN
 			if (full_screen == 0) full_screen = 1; set_mode(256,224,16);
 			else full_screen = 0; set_mode(256,224,16); end
 		end
+		if (_key(_tab,_key_down))
+			set_fps(0,0);
+		elseif (_key(_tab,_key_up))
+			set_fps(60,0);
+		end
 		frame;
 	END
 END
