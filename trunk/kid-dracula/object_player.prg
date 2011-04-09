@@ -180,7 +180,7 @@ BEGIN
 		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_LADDER_END))
 			y_speed = 0;
 			object_pid.air_state = STATE_GROUND;
-			object_pid.y = (((object_pid.y/100)/16)*16)*100; // fix y position
+			object_pid.y = (object_pid.y/1600)*1600; // fix y position
 		else
 			if (object_pid.air_state != STATE_LADDER && y_speed <= y_max_speed)
 				y_speed += gravity;
