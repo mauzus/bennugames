@@ -20,7 +20,7 @@ BEGIN
 	load_tiles();
 	load_level();
 	start_scroll(0,0,scroll_map,0,0,0);
-	scroll[0].camera = object_player(16, 240);
+	scroll[0].camera = object_player(1600, 24000);
 
 	LOOP
 		if (key(_alt) && key(_f4)) exit(); end

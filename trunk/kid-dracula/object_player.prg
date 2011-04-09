@@ -28,6 +28,7 @@ PRIVATE
 	f_char;
 BEGIN
 	ctype = C_SCROLL;
+	resolution = 100;
 	f_char = fpg_load("fpg/char.fpg");
 	file = f_char;
 	graph = 1;
@@ -49,11 +50,11 @@ FUNCTION player_point(object_player object_pid, num)
 BEGIN
 	get_point(object_pid.file, 1, num, &x, &y);
 	if (object_pid.flags)
-		x = object_pid.x+15-x;
+		x = (object_pid.x/100)+15-x;
 	else
-		x = object_pid.x-15+x;
+		x = (object_pid.x/100)-15+x;
 	end
-	y = object_pid.y-32+y;
+	y = (object_pid.y/100)-32+y;
 //	return (tile_type[level_struct[y/16][x/16]]);
 	return (tile_type[*(level_struct+(y/16)*level_size_x+(x/16))]);
 END
@@ -85,8 +86,8 @@ BEGIN
 					end
 				end
 				if (!block_x_movement)
-					if (object_pid.flags == 0) object_pid.x += 1;
-					else object_pid.x -= 1; end
+					if (object_pid.flags == 0) object_pid.x += 100;
+					else object_pid.x -= 100; end
 				else
 					block_x_movement = 0;
 				end
@@ -103,23 +104,19 @@ END
 
 PROCESS player_movement_y(object_player object_pid)
 PRIVATE
-	gravity = 64;
+	gravity = 25;
 	y_speed = 0;
-	y_sub_speed = 0;
-	y_max_speed = 4;
+	y_max_speed = 400;
 BEGIN
 //	priority = object_pid.priority - 1;
 //	write_var(0,10,50,0,y_speed);
-//	write_var(0,10,60,0,y_sub_speed);
 	LOOP
 		// jump
 		if (_key(_d,_key_down) && object_pid.air_state == STATE_GROUND)
-			y_speed = -4;
-			y_sub_speed -= 196;
+			y_speed = -500;
 		end
 		if (_key(_a,_key_down)) // multiple-jump for debugging
-			y_speed = -4;
-			y_sub_speed -= 196;
+			y_speed = -500;
 		end
 
 		// set STATE_LADDER
@@ -131,21 +128,20 @@ BEGIN
 		    ))
 			object_pid.air_state = STATE_LADDER;
 			y_speed = 0;
-			y_sub_speed = 0;
 		end
 		if (object_pid.air_state != STATE_LADDER && _key(_down,_key_pressed) && 
 		    (player_point(object_pid,CP_FOOT_LEFT)  == TILE_LADDER_END &&
 		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_LADDER_END))
-			object_pid.y += 15;
+			object_pid.y += 1500;
 			object_pid.air_state = STATE_LADDER;
 		end
 		// already in ladder?
 		if (object_pid.air_state == STATE_LADDER)
 			if (_key(_up,_key_pressed))
-				object_pid.y -= 1;
+				object_pid.y -= 100;
 			end
 			if (_key(_down,_key_pressed))
-				object_pid.y += 1;
+				object_pid.y += 100;
 			end
 			if (player_point(object_pid,CP_CENTER) != TILE_LADDER &&
 			    player_point(object_pid,CP_CENTER) != TILE_LADDER_END)
@@ -157,7 +153,7 @@ BEGIN
 		end
 
 		// if we have y_speed
-		if (y_speed != 0 || y_sub_speed != 0)
+		if (y_speed != 0)
 			// update air_state
 			if (y_speed >= 0)
 				object_pid.air_state = STATE_FALLING;
@@ -173,7 +169,6 @@ BEGIN
 		    (player_point(object_pid,CP_HEAD_LEFT) == TILE_SOLID ||
 		     player_point(object_pid,CP_HEAD_RIGHT) == TILE_SOLID) )
 			y_speed = 0;
-			y_sub_speed = 0;
 			object_pid.air_state = STATE_FALLING;
 		end
 
@@ -183,20 +178,14 @@ BEGIN
 		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_SOLID ||
 		     player_point(object_pid,CP_FOOT_LEFT)  == TILE_LADDER_END ||
 		     player_point(object_pid,CP_FOOT_RIGHT) == TILE_LADDER_END))
-			y_sub_speed = 0;
 			y_speed = 0;
 			object_pid.air_state = STATE_GROUND;
-			object_pid.y = (object_pid.y/16)*16; // fix y position
+			object_pid.y = (((object_pid.y/100)/16)*16)*100; // fix y position
 		else
 			if (object_pid.air_state != STATE_LADDER && y_speed <= y_max_speed)
-				y_sub_speed += gravity;
-				if (y_sub_speed >= 256)
-					y_speed++;
-					y_sub_speed -= 256;
-				end
+				y_speed += gravity;
 			end
 		end
-
 		frame;
 	END
 END
